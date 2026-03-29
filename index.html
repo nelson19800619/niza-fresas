@@ -7,76 +7,149 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tap:active { transform: scale(0.95); opacity: 0.8; }
+        body { background-color: #0f172a; color: white; font-family: sans-serif; padding-bottom: 20px; overflow-x: hidden; }
+        .card-pedido { background: #1e293b; border-left: 5px solid #f43f5e; margin-bottom: 12px; padding: 15px; border-radius: 15px; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 50; align-items: center; justify-content: center; padding: 15px; overflow-y: auto; }
+        .badge { font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: bold; }
+    </style>
 </head>
-<body class="bg-slate-900 text-white font-sans pb-10">
+<body>
 
-    <header class="bg-rose-700 p-4 sticky top-0 z-50 shadow-xl">
-        <div class="flex justify-between items-center mb-4">
-            <h1 class="font-black italic text-lg">🍓 NIZA FRESAS PRO</h1>
-            <button onclick="abrirModalClientes()" class="bg-white/20 px-3 py-2 rounded-xl text-xs font-bold tap">👤 CLIENTES</button>
+    <header class="bg-rose-700 p-4 sticky top-0 z-40 shadow-2xl">
+        <div class="flex justify-between items-center mb-3 text-white">
+            <h1 class="font-black italic text-lg tracking-tighter uppercase">🍓 Niza Fresas</h1>
+            <button onclick="abrirModalClientes()" class="bg-white/20 p-2 rounded-lg tap text-xs font-bold uppercase">👤 Clientes</button>
         </div>
         
-        <div class="grid grid-cols-3 gap-2 text-center text-white">
-            <div class="bg-black/30 p-2 rounded-xl"><p class="text-[8px] uppercase font-bold opacity-70">Total Vasos</p><p id="prod-total" class="text-lg font-black">0</p></div>
-            <div class="bg-black/30 p-2 rounded-xl"><p class="text-[8px] uppercase font-bold opacity-70">Entregados</p><p id="prod-entregado" class="text-lg font-black text-green-400">0</p></div>
-            <div class="bg-black/30 p-2 rounded-xl"><p class="text-[8px] uppercase font-bold opacity-70">Faltan</p><p id="prod-falta" class="text-lg font-black text-rose-400">0</p></div>
+        <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="bg-black/30 p-2 rounded-xl border border-white/5">
+                <p class="text-[8px] uppercase font-bold text-slate-300">Total Vasos</p>
+                <p id="prod-total" class="text-lg font-black">0</p>
+            </div>
+            <div class="bg-black/30 p-2 rounded-xl border border-white/5">
+                <p class="text-[8px] uppercase font-bold text-green-300">Entregados</p>
+                <p id="prod-entregado" class="text-lg font-black text-green-400">0</p>
+            </div>
+            <div class="bg-black/30 p-2 rounded-xl border border-white/5">
+                <p class="text-[8px] uppercase font-bold text-rose-300">Faltan</p>
+                <p id="prod-falta" class="text-lg font-black text-rose-400">0</p>
+            </div>
         </div>
     </header>
 
     <main class="p-4">
-        <button onclick="abrirModalPedido()" class="w-full bg-rose-600 p-4 rounded-2xl font-black mb-6 shadow-lg tap uppercase">+ Nuevo Pedido</button>
+        <button onclick="abrirModalPedido()" class="w-full bg-rose-600 p-4 rounded-2xl font-black text-sm tap uppercase mb-6 shadow-lg">+ Nuevo Pedido</button>
         
         <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xs font-black text-slate-500 uppercase">Lista de Pedidos</h2>
-            <input type="date" id="filtro-fecha" onchange="dibujarPedidos()" class="bg-slate-800 text-white p-2 rounded-lg border border-slate-700">
+            <h2 class="text-[10px] font-black text-slate-500 uppercase">Pedidos de la Fecha</h2>
+            <input type="date" id="filtro-fecha" onchange="dibujarPedidos()" class="bg-slate-800 text-white p-2 rounded-lg border border-slate-700 outline-none text-xs">
         </div>
 
-        <div id="lista-pedidos" class="space-y-4 text-white">
-            </div>
+        <div id="lista-pedidos" class="space-y-4"></div>
     </main>
 
+    <div id="m-pedido" class="modal">
+        <div class="bg-slate-900 w-full max-w-md p-6 rounded-[2rem] border border-rose-500/20">
+            <h2 id="modal-pedido-titulo" class="text-rose-500 font-black mb-5 text-center text-xl uppercase">Nuevo Pedido</h2>
+            <input type="hidden" id="edit-pedido-id">
+            <div class="space-y-4">
+                <select id="p-cliente" onchange="autoPrecio()" class="w-full bg-slate-800 p-4 rounded-2xl text-white border border-slate-700"></select>
+                <div class="grid grid-cols-2 gap-3">
+                    <select id="p-vaso" class="w-full bg-slate-800 p-4 rounded-2xl text-white border border-slate-700">
+                        <option value="12oz">12 oz</option><option value="14oz">14 oz</option><option value="16oz" selected>16 oz</option><option value="18oz">18 oz</option>
+                    </select>
+                    <input type="number" id="p-cant" value="1" class="w-full bg-slate-800 p-4 rounded-2xl text-white text-center border border-slate-700">
+                </div>
+                <input type="number" id="p-valor-u" placeholder="Precio Vaso $" class="w-full bg-slate-800 p-4 rounded-2xl text-rose-400 font-bold border border-slate-700">
+                <button onclick="guardarPedido()" class="w-full bg-green-600 py-4 rounded-2xl font-black tap shadow-lg mt-2">GUARDAR PEDIDO 🍓</button>
+                <button onclick="cerrarModales()" class="w-full text-slate-500 text-xs font-bold py-3 uppercase">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="m-cobrar" class="modal">
+        <div class="bg-slate-900 w-full max-w-xs p-6 rounded-[2rem] border border-green-500/30 text-center">
+            <h3 class="text-green-400 font-black mb-6 uppercase">¿Cómo pagó el cliente?</h3>
+            <input type="hidden" id="cobrar-id">
+            <div class="space-y-3">
+                <button onclick="confirmarPago('Efectivo')" class="w-full bg-green-600 p-4 rounded-2xl font-black tap">💰 EFECTIVO</button>
+                <button onclick="confirmarPago('Transferencia')" class="w-full bg-blue-600 p-4 rounded-2xl font-black tap">📱 TRANSFERENCIA</button>
+                <button onclick="cerrarModales()" class="w-full bg-slate-800 p-3 rounded-2xl text-slate-400 font-bold tap">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="m-clientes" class="modal">
+        <div class="bg-slate-900 w-full max-w-md p-6 rounded-[2rem] flex flex-col max-h-[90vh]">
+            <h2 class="text-blue-400 font-black mb-4 text-center uppercase">Gestión de Clientes</h2>
+            <div class="space-y-2 mb-4 bg-slate-800/50 p-4 rounded-2xl border border-slate-800">
+                <input type="hidden" id="edit-cliente-id">
+                <input type="text" id="c-nombre" placeholder="Nombre" class="w-full bg-slate-800 p-3 rounded-xl text-white border border-slate-700">
+                <input type="text" id="c-dir" placeholder="Dirección / Barrio" class="w-full bg-slate-800 p-3 rounded-xl text-white border border-slate-700">
+                <input type="number" id="c-precio" placeholder="Precio Especial $" class="w-full bg-slate-800 p-3 rounded-xl text-white border border-slate-700">
+                <button id="btn-cliente-save" onclick="guardarCliente()" class="w-full bg-blue-600 py-3 rounded-xl font-black tap mt-2">AÑADIR A LISTA</button>
+            </div>
+            <div id="lista-clientes-db" class="overflow-y-auto flex-1 space-y-2 pr-1"></div>
+            <button onclick="cerrarModales()" class="mt-4 text-slate-500 font-bold text-xs uppercase">Cerrar</button>
+        </div>
+    </div>
+
     <script>
-        // CONFIGURACIÓN CRÍTICA
-        const firebaseConfig = {
+        const config = {
             apiKey: "AIzaSyBZ93gaPrEkHY5gsNgkBxLEH_GHko_ijFs",
             authDomain: "delicias--niza.firebaseapp.com",
             databaseURL: "https://delicias--niza-default-rtdb.firebaseio.com",
             projectId: "delicias--niza",
             storageBucket: "delicias--niza.firebasestorage.app",
         };
-
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        firebase.initializeApp(config);
         const db = firebase.database();
 
-        // Referencia exacta a la carpeta de la base de datos
-        const refClientes = db.ref('fresas_niza/clientes');
-        const refPedidos = db.ref('fresas_niza/pedidos');
+        let clientes = [], pedidos = [];
+        const f = (n) => new Intl.NumberFormat('de-DE').format(n || 0);
+        
+        // Poner fecha de hoy automática
+        const hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('filtro-fecha').value = hoy;
 
-        let clientes = [];
-        let pedidos = [];
-
-        // CARGAR CLIENTES DESDE LA NUBE
-        refClientes.on('value', snap => {
-            const data = snap.val();
-            clientes = data ? Object.entries(data).map(([id, d]) => ({id, ...d})) : [];
-            actualizarSelectClientes();
-            dibujarClientes();
-            console.log("Clientes cargados:", clientes.length);
-        }, error => {
-            alert("Error de conexión: " + error.message);
+        // --- SINCRONIZACIÓN NUBE ---
+        db.ref('/fresas_niza/clientes').on('value', snap => {
+            clientes = snap.val() ? Object.entries(snap.val()).map(([id, d]) => ({id, ...d})) : [];
+            actualizarSelectClientes(); dibujarClientes();
         });
 
-        // CARGAR PEDIDOS DESDE LA NUBE
-        refPedidos.on('value', snap => {
-            const data = snap.val();
-            pedidos = data ? Object.entries(data).map(([id, d]) => ({id, ...d})) : [];
+        db.ref('/fresas_niza/pedidos').on('value', snap => {
+            pedidos = snap.val() ? Object.entries(snap.val()).map(([id, data]) => ({id, ...data})) : [];
             dibujarPedidos();
-            console.log("Pedidos cargados:", pedidos.length);
         });
 
-        // [Funciones de dibujo y lógica de antes]
-    </script>
-</body>
-</html>
+        // --- LÓGICA CLIENTES ---
+        function guardarCliente() {
+            const id = document.getElementById('edit-cliente-id').value;
+            const n = document.getElementById('c-nombre').value, d = document.getElementById('c-dir').value, p = document.getElementById('c-precio').value;
+            if(n && p) {
+                const data = { nombre: n, direccion: d || 'Sin dir', precio: parseInt(p) };
+                if(id) db.ref('/fresas_niza/clientes/' + id).update(data);
+                else db.ref('/fresas_niza/clientes').push(data);
+                resetFormCliente();
+            }
+        }
+        function editarCliente(id) {
+            const c = clientes.find(x => x.id === id);
+            document.getElementById('edit-cliente-id').value = c.id;
+            document.getElementById('c-nombre').value = c.nombre;
+            document.getElementById('c-dir').value = c.direccion;
+            document.getElementById('c-precio').value = c.precio;
+            document.getElementById('btn-cliente-save').innerText = "ACTUALIZAR CLIENTE";
+        }
+        function resetFormCliente() {
+            document.getElementById('edit-cliente-id').value = '';
+            document.getElementById('c-nombre').value = ''; document.getElementById('c-dir').value = ''; document.getElementById('c-precio').value = '';
+            document.getElementById('btn-cliente-save').innerText = "AÑADIR A LISTA";
+        }
+        function dibujarClientes() {
+            const div = document.getElementById('lista-clientes-db'); div.innerHTML = '';
+            clientes.sort((a,b) => a.nombre.localeCompare(b.nombre)).forEach(c => {
+                div.innerHTML += `<div class="bg-slate-800/80 p-3 rounded-xl flex justify-between items-center border
