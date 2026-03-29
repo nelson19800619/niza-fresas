@@ -3,101 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NIZA FRESAS V2</title>
+    <title>NIZA FRESAS V2.1</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .tap:active { transform: scale(0.98); opacity: 0.8; }
-        body { background-color: #0f172a; color: white; font-family: sans-serif; margin: 0; padding-bottom: 20px; }
-        .card-pedido { background: #1e293b; border-left: 4px solid #f43f5e; margin-bottom: 10px; padding: 12px; border-radius: 12px; shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .tap:active { transform: scale(0.95); }
+        body { background-color: #0f172a; color: white; font-family: sans-serif; padding-bottom: 20px; }
+        .card-pedido { background: #1e293b; border-left: 5px solid #f43f5e; margin-bottom: 12px; padding: 15px; border-radius: 15px; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 50; align-items: center; justify-content: center; padding: 15px; overflow-y: auto; }
-        .badge { font-size: 9px; padding: 2px 6px; border-radius: 99px; font-weight: bold; }
+        .badge { font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <header class="bg-rose-700 p-4 sticky top-0 z-40 shadow-2xl">
         <div class="flex justify-between items-center mb-3">
-            <h1 class="font-black italic text-lg tracking-tighter">🍓 NIZA FRESAS V2</h1>
-            <div class="flex gap-2">
-                <button onclick="abrirModalClientes()" class="bg-white/20 p-2 rounded-lg tap text-sm">👤 Clientes</button>
+            <h1 class="font-black italic text-lg tracking-tighter">🍓 NIZA FRESAS PRO</h1>
+            <button onclick="abrirModalClientes()" class="bg-white/20 p-2 rounded-lg tap text-xs font-bold">👤 CLIENTES</button>
+        </div>
+        
+        <div class="grid grid-cols-3 gap-2 text-center mb-3">
+            <div class="bg-black/40 p-2 rounded-xl border border-white/10">
+                <p class="text-[8px] uppercase font-bold text-slate-300">Total Vasos</p>
+                <p id="prod-total" class="text-lg font-black text-white">0</p>
+            </div>
+            <div class="bg-black/40 p-2 rounded-xl border border-white/10">
+                <p class="text-[8px] uppercase font-bold text-green-300">Entregados</p>
+                <p id="prod-entregado" class="text-lg font-black text-green-400">0</p>
+            </div>
+            <div class="bg-black/40 p-2 rounded-xl border border-white/10">
+                <p class="text-[8px] uppercase font-bold text-rose-300">Faltan</p>
+                <p id="prod-falta" class="text-lg font-black text-rose-400">0</p>
             </div>
         </div>
-        <div class="grid grid-cols-3 gap-2 text-center">
-            <div class="bg-black/30 p-2 rounded-xl border border-white/5">
-                <p class="text-[7px] uppercase font-bold text-rose-300">Pendiente</p>
-                <p id="res-debe" class="text-sm font-black">$ 0</p>
-            </div>
-            <div class="bg-black/30 p-2 rounded-xl border border-white/5">
-                <p class="text-[7px] uppercase font-bold text-green-300">Cobrado</p>
-                <p id="res-pago" class="text-sm font-black text-green-400">$ 0</p>
-            </div>
-            <div class="bg-black/30 p-2 rounded-xl border border-white/5">
-                <p class="text-[7px] uppercase font-bold text-blue-300">En Ruta</p>
-                <p id="res-entregas" class="text-sm font-black">0</p>
-            </div>
+
+        <div class="grid grid-cols-2 gap-2 text-center">
+            <div class="bg-rose-900/50 p-2 rounded-lg"><p class="text-[7px] uppercase font-bold text-rose-200">Por Cobrar</p><p id="res-debe" class="text-sm font-black text-white">$ 0</p></div>
+            <div class="bg-green-900/50 p-2 rounded-lg"><p class="text-[7px] uppercase font-bold text-green-200">En Caja</p><p id="res-pago" class="text-sm font-black text-green-400">$ 0</p></div>
         </div>
     </header>
 
     <main class="p-4">
-        <button onclick="abrirModalPedido()" class="w-full bg-rose-600 p-4 rounded-2xl font-black text-sm tap uppercase shadow-lg shadow-rose-900/20 mb-6 flex justify-center items-center gap-2">
-            <span>+</span> NUEVO PEDIDO
-        </button>
-
-        <div class="flex items-center justify-between mb-3">
-            <h2 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Hoja de Ruta</h2>
-            <input type="date" id="filtro-fecha" onchange="dibujarPedidos()" class="bg-slate-800 text-[10px] p-1 rounded border border-slate-700 outline-none">
+        <button onclick="abrirModalPedido()" class="w-full bg-rose-600 p-4 rounded-2xl font-black text-sm tap uppercase mb-6 shadow-lg shadow-rose-900/30">+ Nuevo Pedido</button>
+        
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Pedidos del Día</h2>
+            <input type="date" id="filtro-fecha" onchange="dibujarPedidos()" class="bg-slate-800 text-xs p-2 rounded-lg border border-slate-700 outline-none text-white">
         </div>
 
-        <div id="lista-pedidos" class="space-y-3">
-            </div>
+        <div id="lista-pedidos" class="space-y-4"></div>
     </main>
 
     <div id="m-pedido" class="modal">
-        <div class="bg-slate-900 w-full max-w-md p-6 rounded-[2rem] border border-rose-500/20 shadow-2xl">
-            <h2 class="text-rose-500 font-black mb-5 text-center text-xl">NUEVO PEDIDO</h2>
+        <div class="bg-slate-900 w-full max-w-md p-6 rounded-[2rem] border border-rose-500/30">
+            <h2 id="modal-pedido-titulo" class="text-rose-500 font-black mb-5 text-center text-xl">NUEVO PEDIDO</h2>
+            <input type="hidden" id="edit-pedido-id">
             <div class="space-y-4">
-                <div>
-                    <label class="text-[9px] font-bold text-slate-500 uppercase ml-2">Cliente</label>
-                    <select id="p-cliente" onchange="autoPrecio()" class="w-full bg-slate-800 p-4 rounded-2xl text-white outline-none border border-slate-700"></select>
-                </div>
+                <select id="p-cliente" onchange="autoPrecio()" class="w-full bg-slate-800 p-4 rounded-2xl text-white outline-none border border-slate-700"></select>
                 <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[9px] font-bold text-slate-500 uppercase ml-2">Vaso</label>
-                        <select id="p-vaso" class="w-full bg-slate-800 p-4 rounded-2xl text-white outline-none border border-slate-700">
-                            <option value="12oz">12 oz</option>
-                            <option value="14oz">14 oz</option>
-                            <option value="16oz" selected>16 oz</option>
-                            <option value="18oz">18 oz</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-[9px] font-bold text-slate-500 uppercase ml-2">Cant.</label>
-                        <input type="number" id="p-cant" value="1" class="w-full bg-slate-800 p-4 rounded-2xl text-white outline-none border border-slate-700 text-center">
-                    </div>
+                    <select id="p-vaso" class="w-full bg-slate-800 p-4 rounded-2xl text-white outline-none border border-slate-700">
+                        <option value="12oz">12 oz</option><option value="14oz">14 oz</option><option value="16oz" selected>16 oz</option><option value="18oz">18 oz</option>
+                    </select>
+                    <input type="number" id="p-cant" value="1" class="w-full bg-slate-800 p-4 rounded-2xl text-white outline-none border border-slate-700 text-center">
                 </div>
-                <div>
-                    <label class="text-[9px] font-bold text-slate-500 uppercase ml-2">Precio sugerido (Vaso)</label>
-                    <input type="number" id="p-valor-u" class="w-full bg-slate-800 p-4 rounded-2xl text-rose-400 font-bold outline-none border border-slate-700">
-                </div>
-                <button onclick="guardarPedido()" class="w-full bg-green-600 py-4 rounded-2xl font-black tap shadow-lg shadow-green-900/20 mt-4 text-sm">REGISTRAR PEDIDO 🍓</button>
-                <button onclick="cerrarModales()" class="w-full text-slate-600 text-[10px] font-bold uppercase tracking-widest pt-2">Cerrar</button>
+                <input type="number" id="p-valor-u" placeholder="Precio Unidad $" class="w-full bg-slate-800 p-4 rounded-2xl text-rose-400 font-bold border border-slate-700">
+                <button onclick="guardarPedido()" class="w-full bg-green-600 py-4 rounded-2xl font-black tap shadow-lg mt-2">GUARDAR PEDIDO</button>
+                <button onclick="cerrarModales()" class="w-full text-slate-500 text-xs uppercase font-bold py-2">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="m-cobrar" class="modal">
+        <div class="bg-slate-900 w-full max-w-xs p-6 rounded-[2rem] border border-green-500/40 text-center">
+            <h3 class="text-green-400 font-black mb-6">¿CÓMO TE PAGARON?</h3>
+            <input type="hidden" id="cobrar-id">
+            <div class="space-y-3">
+                <button onclick="confirmarPago('Efectivo')" class="w-full bg-green-600 p-4 rounded-2xl font-black tap">💰 EFECTIVO</button>
+                <button onclick="confirmarPago('Transferencia')" class="w-full bg-blue-600 p-4 rounded-2xl font-black tap">📱 TRANSFERENCIA</button>
+                <button onclick="cerrarModales()" class="w-full bg-slate-800 p-3 rounded-2xl text-slate-400 font-bold tap">CANCELAR</button>
             </div>
         </div>
     </div>
 
     <div id="m-clientes" class="modal">
         <div class="bg-slate-900 w-full max-w-md p-6 rounded-[2rem] border border-blue-500/20 flex flex-col max-h-[90vh]">
-            <h2 class="text-blue-400 font-black mb-4 uppercase text-center">Mis Clientes</h2>
+            <h2 class="text-blue-400 font-black mb-4 text-center uppercase">Gestión de Clientes</h2>
             <div class="space-y-2 mb-6 bg-slate-800/50 p-4 rounded-2xl border border-slate-800">
-                <input type="text" id="c-nombre" placeholder="Nombre" class="w-full bg-slate-800 p-3 rounded-xl text-white outline-none mb-2">
-                <input type="text" id="c-dir" placeholder="Dirección / Barrio" class="w-full bg-slate-800 p-3 rounded-xl text-white outline-none mb-2">
-                <input type="number" id="c-precio" placeholder="Precio Especial $" class="w-full bg-slate-800 p-3 rounded-xl text-white outline-none">
-                <button onclick="guardarCliente()" class="w-full bg-blue-600 py-3 rounded-xl font-black tap mt-2 text-xs">AÑADIR A LISTA</button>
+                <input type="hidden" id="edit-cliente-id">
+                <input type="text" id="c-nombre" placeholder="Nombre Completo" class="w-full bg-slate-800 p-3 rounded-xl text-white outline-none border border-slate-700">
+                <input type="text" id="c-dir" placeholder="Dirección / Barrio" class="w-full bg-slate-800 p-3 rounded-xl text-white outline-none border border-slate-700">
+                <input type="number" id="c-precio" placeholder="Precio Base $" class="w-full bg-slate-800 p-3 rounded-xl text-white outline-none border border-slate-700">
+                <button id="btn-cliente-save" onclick="guardarCliente()" class="w-full bg-blue-600 py-3 rounded-xl font-black tap">AÑADIR CLIENTE</button>
             </div>
-            <div id="lista-clientes-db" class="overflow-y-auto flex-1 space-y-2 pr-2"></div>
-            <button onclick="cerrarModales()" class="mt-4 text-slate-500 text-[10px] uppercase font-bold">Cerrar</button>
+            <div id="lista-clientes-db" class="overflow-y-auto flex-1 space-y-2 pr-1"></div>
+            <button onclick="cerrarModales()" class="mt-4 text-slate-500 font-bold text-xs uppercase">Cerrar</button>
         </div>
     </div>
 
@@ -118,10 +118,10 @@
 
         document.getElementById('filtro-fecha').value = getColDate();
 
+        // Sincronización
         db.ref('/fresas_niza/clientes').on('value', snap => {
             clientes = snap.val() ? Object.entries(snap.val()).map(([id, d]) => ({id, ...d})) : [];
-            actualizarSelectClientes();
-            dibujarClientes();
+            actualizarSelectClientes(); dibujarClientes();
         });
 
         db.ref('/fresas_niza/pedidos').on('value', snap => {
@@ -129,106 +129,111 @@
             dibujarPedidos();
         });
 
+        // CLIENTES
         function guardarCliente() {
-            const n = document.getElementById('c-nombre').value, p = document.getElementById('c-precio').value, d = document.getElementById('c-dir').value;
-            if(n && p) {
-                db.ref('/fresas_niza/clientes').push({ nombre: n, precio: parseInt(p), direccion: d || 'No registra' });
-                document.getElementById('c-nombre').value = ''; document.getElementById('c-precio').value = ''; document.getElementById('c-dir').value = '';
+            const id = document.getElementById('edit-cliente-id').value;
+            const data = {
+                nombre: document.getElementById('c-nombre').value,
+                precio: parseInt(document.getElementById('c-precio').value),
+                direccion: document.getElementById('c-dir').value || 'Sin dirección'
+            };
+            if(data.nombre && data.precio) {
+                if(id) db.ref('/fresas_niza/clientes/' + id).update(data);
+                else db.ref('/fresas_niza/clientes').push(data);
+                resetFormCliente();
             }
+        }
+
+        function editarCliente(id) {
+            const c = clientes.find(x => x.id === id);
+            document.getElementById('edit-cliente-id').value = c.id;
+            document.getElementById('c-nombre').value = c.nombre;
+            document.getElementById('c-dir').value = c.direccion;
+            document.getElementById('c-precio').value = c.precio;
+            document.getElementById('btn-cliente-save').innerText = "ACTUALIZAR DATOS";
+        }
+
+        function resetFormCliente() {
+            document.getElementById('edit-cliente-id').value = '';
+            document.getElementById('c-nombre').value = ''; document.getElementById('c-dir').value = ''; document.getElementById('c-precio').value = '';
+            document.getElementById('btn-cliente-save').innerText = "AÑADIR CLIENTE";
         }
 
         function dibujarClientes() {
             const div = document.getElementById('lista-clientes-db'); div.innerHTML = '';
             clientes.sort((a,b) => a.nombre.localeCompare(b.nombre)).forEach(c => {
-                div.innerHTML += `<div class="bg-slate-800/80 p-3 rounded-xl flex justify-between items-center border border-slate-700/50">
-                    <div><p class="font-bold text-sm">${c.nombre}</p><p class="text-[9px] text-slate-400 italic">${c.direccion}</p></div>
+                div.innerHTML += `<div class="bg-slate-800/80 p-3 rounded-xl flex justify-between items-center border border-white/5">
+                    <div onclick="editarCliente('${c.id}')"><p class="font-bold text-sm">${c.nombre}</p><p class="text-[9px] text-slate-400 italic">${c.direccion}</p></div>
                     <div class="flex items-center gap-3">
                         <span class="text-blue-400 font-black text-xs">$${f(c.precio)}</span>
-                        <button onclick="borrarCli('${c.id}')" class="text-red-900 text-xs font-black">✕</button>
+                        <button onclick="borrarCli('${c.id}')" class="text-red-900 text-xs">✕</button>
                     </div>
                 </div>`;
             });
         }
 
-        function actualizarSelectClientes() {
-            const sel = document.getElementById('p-cliente');
-            sel.innerHTML = '<option value="">-- ¿Quién pide? --</option>';
-            clientes.forEach(c => { sel.innerHTML += `<option value="${c.nombre}">${c.nombre}</option>`; });
-        }
-
+        // PEDIDOS
         function autoPrecio() {
-            const cliNom = document.getElementById('p-cliente').value;
-            const c = clientes.find(x => x.nombre === cliNom);
-            if(c) document.getElementById('p-valor-u').value = c.precio;
+            const cli = clientes.find(x => x.nombre === document.getElementById('p-cliente').value);
+            if(cli) document.getElementById('p-valor-u').value = cli.precio;
         }
 
         function guardarPedido() {
-            const cliNom = document.getElementById('p-cliente').value, vaso = document.getElementById('p-vaso').value;
-            const cant = parseInt(document.getElementById('p-cant').value), valU = parseInt(document.getElementById('p-valor-u').value);
+            const id = document.getElementById('edit-pedido-id').value;
+            const cliNom = document.getElementById('p-cliente').value;
             const cObj = clientes.find(x => x.nombre === cliNom);
-            if(cliNom && cant > 0 && valU > 0) {
-                db.ref('/fresas_niza/pedidos').push({
-                    cliente: cliNom, vaso: vaso, cant: cant, total: valU * cant, valU: valU,
-                    fecha: document.getElementById('filtro-fecha').value,
-                    direccion: cObj ? cObj.direccion : '---',
-                    entregado: false, pagado: false, metodo: '---'
-                });
-                cerrarModales();
+            const data = {
+                cliente: cliNom, vaso: document.getElementById('p-vaso').value,
+                cant: parseInt(document.getElementById('p-cant').value),
+                valU: parseInt(document.getElementById('p-valor-u').value),
+                total: parseInt(document.getElementById('p-cant').value) * parseInt(document.getElementById('p-valor-u').value),
+                fecha: document.getElementById('filtro-fecha').value,
+                direccion: cObj ? cObj.direccion : '---'
+            };
+            if(id) {
+                db.ref('/fresas_niza/pedidos/' + id).update(data);
+            } else {
+                data.entregado = false; data.pagado = false; data.metodo = '---';
+                db.ref('/fresas_niza/pedidos').push(data);
             }
+            cerrarModales();
+        }
+
+        function editarPedido(id) {
+            const p = pedidos.find(x => x.id === id);
+            document.getElementById('edit-pedido-id').value = p.id;
+            document.getElementById('p-cliente').value = p.cliente;
+            document.getElementById('p-vaso').value = p.vaso;
+            document.getElementById('p-cant').value = p.cant;
+            document.getElementById('p-valor-u').value = p.valU;
+            document.getElementById('modal-pedido-titulo').innerText = "EDITAR PEDIDO";
+            abrirModalPedido();
         }
 
         function dibujarPedidos() {
             const fSel = document.getElementById('filtro-fecha').value;
             const div = document.getElementById('lista-pedidos'); div.innerHTML = '';
-            let tDebe = 0, tPago = 0, ent = 0;
+            let tDebe = 0, tPago = 0, totalVasos = 0, entVasos = 0;
 
             pedidos.filter(p => p.fecha === fSel).forEach(p => {
+                totalVasos += p.cant;
+                if(p.entregado) entVasos += p.cant;
                 if(p.pagado) tPago += p.total; else tDebe += p.total;
-                if(p.entregado) ent++;
 
                 div.innerHTML += `
                     <div class="card-pedido" style="border-left-color: ${p.pagado ? '#22c55e' : (p.entregado ? '#3b82f6' : '#f43f5e')}">
-                        <div class="flex justify-between items-start mb-2">
-                            <div class="flex-1">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex-1" onclick="editarPedido('${p.id}')">
                                 <div class="flex items-center gap-2 mb-1">
-                                    <h3 class="font-black text-sm uppercase tracking-tight">${p.cliente}</h3>
-                                    ${p.pagado ? '<span class="badge bg-green-500/20 text-green-400">PAGO</span>' : '<span class="badge bg-red-500/20 text-red-400">DEBE</span>'}
+                                    <h3 class="font-black text-sm uppercase">${p.cliente}</h3>
+                                    ${p.pagado ? `<span class="badge bg-green-500/20 text-green-400">PAGADO (${p.metodo})</span>` : '<span class="badge bg-red-500/20 text-red-400">DEBE</span>'}
                                 </div>
-                                <p class="text-[9px] text-slate-400 font-medium">📍 ${p.direccion}</p>
+                                <p class="text-[10px] text-slate-400 font-bold">📍 ${p.direccion}</p>
                             </div>
                             <div class="text-right">
                                 <p class="font-black text-sm text-white">$${f(p.total)}</p>
-                                <p class="text-[8px] text-slate-500 font-bold">${p.cant}x ${p.vaso}</p>
+                                <p class="text-[9px] text-slate-500 font-bold">${p.cant}x ${p.vaso}</p>
                             </div>
                         </div>
-                        <div class="flex gap-2 border-t border-white/5 pt-3 mt-2">
-                            <button onclick="toggleE('${p.id}', ${p.entregado})" class="flex-1 py-2 rounded-lg text-[10px] font-black tap ${p.entregado ? 'bg-blue-900/40 text-blue-400 border border-blue-500/30':'bg-slate-700 text-slate-300'}">
-                                ${p.entregado ? '✅ ENTREGADO' : '🚚 POR ENTREGAR'}
-                            </button>
-                            ${!p.pagado ? `
-                                <button onclick="cobrarP('${p.id}')" class="bg-green-600 px-4 py-2 rounded-lg text-[10px] font-black tap text-white italic">COBRAR $</button>
-                            ` : `
-                                <button onclick="anularP('${p.id}')" class="bg-slate-800 px-3 py-2 rounded-lg text-[10px] font-black tap text-slate-500">✕</button>
-                            `}
-                        </div>
-                    </div>
-                `;
-            });
-            document.getElementById('res-debe').innerText = "$ " + f(tDebe);
-            document.getElementById('res-pago').innerText = "$ " + f(tPago);
-            document.getElementById('res-entregas').innerText = ent;
-        }
-
-        function toggleE(id, st) { db.ref('/fresas_niza/pedidos/' + id).update({ entregado: !st }); }
-        function cobrarP(id) {
-            const m = confirm("¿Paga con TRANSFERENCIA?\n(Aceptar = Transf / Cancelar = Efectivo)");
-            db.ref('/fresas_niza/pedidos/' + id).update({ pagado: true, metodo: m ? 'Transferencia' : 'Efectivo', entregado: true });
-        }
-        function borrarCli(id) { if(confirm("¿Eliminar cliente?")) db.ref('/fresas_niza/clientes/' + id).remove(); }
-        function anularP(id) { if(confirm("¿Anular pago/pedido?")) db.ref('/fresas_niza/pedidos/' + id).remove(); }
-        function abrirModalPedido() { document.getElementById('m-pedido').style.display = 'flex'; }
-        function abrirModalClientes() { document.getElementById('m-clientes').style.display = 'flex'; }
-        function cerrarModales() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
-    </script>
-</body>
-</html>
+                        <div class="flex gap-2">
+                            <button onclick="toggleE('${p.id}', ${p.entregado})" class="flex-1 py-3 rounded-xl
