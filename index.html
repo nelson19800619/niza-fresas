@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NIZA - SISTEMA TOTAL V6.0</title>
+    <title>NIZA - SISTEMA TOTAL V6.1</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,6 +14,7 @@
         .card-p { background: #1e293b; border-left: 12px solid #334155; margin-bottom: 15px; padding: 20px; border-radius: 28px; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 100; align-items: center; justify-content: center; padding: 15px; overflow-y: auto; }
         input, select, textarea { color: white !important; background-color: #1e293b !important; border: 1px solid #475569 !important; border-radius: 15px !important; outline: none; }
+        .cli-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 18px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
@@ -21,8 +22,9 @@
     <header class="bg-slate-800 p-5 sticky top-0 z-40 shadow-2xl rounded-b-[3rem] border-b border-slate-700 text-center">
         <div class="flex justify-between items-center mb-6">
             <h1 class="font-black italic text-xl uppercase tracking-tighter text-rose-500">🍓 Delicias Niza</h1>
-            <div class="flex gap-1.5">
+            <div class="flex gap-1">
                 <button onclick="abrirModReporte()" class="bg-blue-600 p-2.5 rounded-xl text-[8px] font-black uppercase tap">📊 Reporte</button>
+                <button onclick="abrirGastos()" class="bg-rose-600 p-2.5 rounded-xl text-[8px] font-black uppercase tap text-white">💸 Gastos</button>
                 <button onclick="abrirModConfig()" class="bg-slate-700 p-2.5 rounded-xl text-[8px] font-black text-yellow-200 uppercase tap">⚙️ Config</button>
             </div>
         </div>
@@ -52,8 +54,7 @@
     <main class="p-6">
         <button onclick="abrirModPed()" class="w-full bg-rose-600 p-7 rounded-[2.5rem] font-black text-xl tap uppercase mb-8 shadow-2xl border-b-8 border-rose-900 text-white tracking-widest">🚀 Nueva Venta</button>
         <div class="flex gap-2 mb-6">
-            <input type="date" id="fecha-app" onchange="cargarDatosDia()" class="flex-1 bg-slate-800 p-4 rounded-2xl text-sm font-black border-none text-white">
-            <button onclick="abrirGastos()" class="bg-rose-500/20 p-4 rounded-2xl text-rose-400 font-black text-[10px] tap uppercase border border-rose-500/30">💸 Gastos</button>
+            <input type="date" id="fecha-app" onchange="cargarDatosDia()" class="w-full bg-slate-800 p-4 rounded-2xl text-sm font-black border-none text-white">
         </div>
         <div id="lista-peds" class="space-y-4 mb-24"></div>
     </main>
@@ -73,11 +74,15 @@
 
     <div id="m-config" class="modal">
         <div class="bg-slate-900 w-full max-w-md p-8 rounded-[3rem] h-[90vh] flex flex-col border border-yellow-500/30">
-            <h2 class="text-yellow-500 font-black mb-6 uppercase text-center text-xs">Configurar Clientes</h2>
-            <div class="space-y-2 bg-slate-800 p-5 rounded-3xl mb-6">
-                <input type="text" id="c-n" placeholder="NOMBRE" class="w-full p-3 text-[10px] uppercase">
-                <input type="text" id="c-b" placeholder="BARRIO" class="w-full p-3 text-[10px] uppercase">
-                <button onclick="guardarC()" class="w-full bg-blue-600 py-3 rounded-xl font-black text-[10px] uppercase">Guardar Cliente</button>
+            <h2 id="titulo-cli" class="text-yellow-500 font-black mb-6 uppercase text-center text-xs">Configurar Clientes</h2>
+            <input type="hidden" id="edit-id-cli">
+            <div class="space-y-2 bg-slate-800 p-5 rounded-3xl mb-6 text-center">
+                <input type="text" id="c-n" placeholder="NOMBRE" class="w-full p-3 text-[10px] uppercase mb-1">
+                <input type="text" id="c-b" placeholder="BARRIO" class="w-full p-3 text-[10px] uppercase mb-2">
+                <div class="flex gap-2">
+                    <button id="btn-cli" onclick="guardarC()" class="flex-1 bg-blue-600 py-3 rounded-xl font-black text-[10px] uppercase">Guardar</button>
+                    <button id="btn-can-cli" onclick="limpiarFormCli()" class="hidden bg-slate-700 px-4 rounded-xl font-black text-[10px]">X</button>
+                </div>
             </div>
             <div id="l-cli" class="overflow-y-auto flex-1 space-y-2"></div>
             <button onclick="cerrar()" class="mt-4 text-slate-500 font-bold uppercase text-[10px]">Cerrar</button>
@@ -98,7 +103,7 @@
         db.ref('fresas_niza/clientes').on('value', s => { CLIS = s.val() ? Object.entries(s.val()).map(([id, d]) => ({id, ...d})) : []; dibujarConfigCLI(); });
 
         function cargarDatosDia() { 
-            const f = document.getElementById('fecha-app').value;
+            const f = document.getElementById('fecha-app').value = document.getElementById('fecha-app').value || new Date().toISOString().split('T')[0];
             document.getElementById('base-caja').value = BASES[f] || 0; 
             dibujarTodo(); 
         }
@@ -114,16 +119,54 @@
             if(d && v) db.ref('fresas_niza/gastos').push({desc:d, val:v, fecha:f}).then(() => { document.getElementById('g-desc').value=''; document.getElementById('g-val').value=''; });
         }
 
+        // --- LÓGICA DE CLIENTES (CON EDICIÓN) ---
+        function prepararEdicionCli(id) {
+            const c = CLIS.find(i => i.id === id);
+            document.getElementById('edit-id-cli').value = c.id;
+            document.getElementById('c-n').value = c.nombre;
+            document.getElementById('c-b').value = c.barrio || '';
+            document.getElementById('titulo-cli').innerText = "Editando Cliente";
+            document.getElementById('btn-cli').innerText = "Actualizar";
+            document.getElementById('btn-can-cli').classList.remove('hidden');
+        }
+
+        function limpiarFormCli() {
+            document.getElementById('edit-id-cli').value = '';
+            document.getElementById('c-n').value = '';
+            document.getElementById('c-b').value = '';
+            document.getElementById('titulo-cli').innerText = "Configurar Clientes";
+            document.getElementById('btn-cli').innerText = "Guardar";
+            document.getElementById('btn-can-cli').classList.add('hidden');
+        }
+
         function guardarC() {
-            const n = document.getElementById('c-n').value.toUpperCase(), b = document.getElementById('c-b').value.toUpperCase();
-            if(n) db.ref('fresas_niza/clientes').push({nombre:n, barrio:b}).then(() => { document.getElementById('c-n').value=''; document.getElementById('c-b').value=''; });
+            const id = document.getElementById('edit-id-cli').value;
+            const n = document.getElementById('c-n').value.toUpperCase();
+            const b = document.getElementById('c-b').value.toUpperCase();
+            if(!n) return alert("Nombre obligatorio");
+            
+            const data = { nombre: n, barrio: b };
+            if(id) db.ref('fresas_niza/clientes/' + id).update(data).then(() => limpiarFormCli());
+            else db.ref('fresas_niza/clientes').push(data).then(() => limpiarFormCli());
+        }
+
+        function dibujarConfigCLI() {
+            const l = document.getElementById('l-cli'); l.innerHTML = '';
+            CLIS.sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(c => {
+                l.innerHTML += `<div class="cli-item flex justify-between items-center">
+                    <div onclick="prepararEdicionCli('${c.id}')" class="flex flex-col flex-1">
+                        <span class="font-black text-[11px] text-white uppercase">${c.nombre}</span>
+                        <span class="text-[9px] text-slate-500">${c.barrio || 'S/B'}</span>
+                    </div>
+                    <button onclick="confirm('¿Borrar?') && db.ref('fresas_niza/clientes/${c.id}').remove()" class="text-rose-500 p-2 font-bold">✕</button>
+                </div>`;
+            });
         }
 
         function dibujarTodo() {
             const fS = document.getElementById('fecha-app').value;
             const vP = document.getElementById('lista-peds'), lG = document.getElementById('l-gastos');
             vP.innerHTML = ''; lG.innerHTML = '';
-            
             let vPagadasHoy=0, gHoy=0, tVasos=0, cEntregados=0, cPendientes=0;
 
             PEDS.filter(p => p.fecha == fS).reverse().forEach(p => {
@@ -146,7 +189,7 @@
 
             GASTOS.filter(g => g.fecha == fS).forEach(g => { 
                 gHoy += Number(g.val); 
-                lG.innerHTML += `<div class="flex justify-between bg-slate-800 p-3 rounded-xl"><span>${g.desc}</span><span class="text-rose-400 font-bold">-$${fmt(g.val)}</span><button onclick="db.ref('fresas_niza/gastos/${g.id}').remove()" class="text-slate-500 ml-2">✕</button></div>`;
+                lG.innerHTML += `<div class="flex justify-between bg-slate-800 p-3 rounded-xl border-l-4 border-rose-500"><span>${g.desc}</span><span class="text-rose-400 font-bold">-$${fmt(g.val)}</span><button onclick="db.ref('fresas_niza/gastos/${g.id}').remove()" class="text-slate-500 ml-2">✕</button></div>`;
             });
 
             const baseActual = parseInt(document.getElementById('base-caja').value) || 0;
@@ -157,17 +200,14 @@
             document.getElementById('c-listo').innerText = cEntregados;
         }
 
-        function dibujarConfigCLI() {
-            const l = document.getElementById('l-cli'); l.innerHTML = '';
-            CLIS.sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(c => {
-                l.innerHTML += `<div class="flex justify-between bg-slate-800 p-3 rounded-xl items-center"><div class="flex flex-col"><span class="font-bold text-xs">${c.nombre}</span><span class="text-[9px] text-slate-500">${c.barrio}</span></div><button onclick="db.ref('fresas_niza/clientes/${c.id}').remove()" class="text-rose-500 p-2">✕</button></div>`;
-            });
-        }
-
         function abrirGastos(){ document.getElementById('m-gastos').style.display='flex'; }
-        function abrirModConfig(){ document.getElementById('m-config').style.display='flex'; }
+        function abrirModConfig(){ limpiarFormCli(); document.getElementById('m-config').style.display='flex'; }
         function abrirModReporte(){ document.getElementById('m-reporte').style.display='flex'; }
         function cerrar(){ document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); }
+        function abPago(id){ document.getElementById('pago-id').value=id; document.getElementById('m-pago').style.display='flex'; }
+        function pagoFin(m){ db.ref('fresas_niza/pedidos/'+document.getElementById('pago-id').value).update({pagado:true, metodo:m, entregado:true}).then(()=>cerrar()); }
+        
+        cargarDatosDia();
     </script>
 </body>
 </html>
