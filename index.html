@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NIZA - CONTROL TOTAL V3.2</title>
+    <title>NIZA - CONTROL TOTAL V3.3</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,7 +13,7 @@
         body { background-color: #0f172a; color: white; font-family: system-ui, sans-serif; padding-bottom: 100px; }
         .card-p { background: #1e293b; border-left: 6px solid #f43f5e; margin-bottom: 12px; padding: 15px; border-radius: 20px; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; align-items: center; justify-content: center; padding: 15px; overflow-y: auto; }
-        input, select, textarea { color: white !important; background-color: #1e293b !important; outline: none; border: 1px solid #334155 !important; }
+        input, select, textarea { color: white !important; background-color: #1e293b !important; outline: none; border: 1px solid #334155 !important; border-radius: 12px !important; }
         .topping-item { display: flex; align-items: center; gap: 10px; background: #334155; padding: 10px; border-radius: 12px; font-size: 10px; }
     </style>
 </head>
@@ -22,8 +22,8 @@
     <header class="bg-rose-700 p-4 sticky top-0 z-40 shadow-2xl rounded-b-[2rem]">
         <div class="flex justify-between items-center mb-4">
             <div class="flex flex-col">
-                <h1 class="font-black italic text-lg uppercase tracking-tighter">🍓 Delicias Niza</h1>
-                <span class="text-[8px] font-bold opacity-60 text-white uppercase">V3.2 - Descuentos y Notas</span>
+                <h1 class="font-black italic text-lg uppercase tracking-tighter text-white">🍓 Delicias Niza</h1>
+                <span class="text-[8px] font-bold opacity-60 text-white uppercase">V3.3 - Gestión de Personal</span>
             </div>
             <div class="flex gap-1">
                 <button onclick="abrirModConfig()" class="bg-black/30 p-2 rounded-xl text-[8px] font-bold border border-white/10 text-yellow-200 uppercase">⚙️ Ajustes</button>
@@ -37,8 +37,8 @@
                 <p class="text-[7px] font-black text-blue-400 uppercase">Base</p>
                 <input type="number" id="base-caja" onchange="guardarBase()" class="bg-transparent text-center w-full font-black text-white text-sm">
             </div>
-            <div class="bg-slate-900/80 p-2 rounded-2xl border border-green-500/30 text-center text-sm font-black" id="total-ventas">$0</div>
-            <div class="bg-slate-900/80 p-2 rounded-2xl border border-rose-500/30 text-center text-sm font-black" id="total-caja">$0</div>
+            <div class="bg-slate-900/80 p-2 rounded-2xl border border-green-500/30 text-center text-sm font-black text-green-400" id="total-ventas">$0</div>
+            <div class="bg-slate-900/80 p-2 rounded-2xl border border-rose-500/30 text-center text-sm font-black text-rose-400" id="total-caja">$0</div>
         </div>
     </header>
 
@@ -58,12 +58,11 @@
             <div class="space-y-3 overflow-y-auto flex-1 pr-2">
                 <select id="p-atendio" class="w-full p-3 rounded-xl font-black text-yellow-500 text-xs">
                     <option value="">-- ¿QUIÉN ATIENDE? --</option>
-                    <option>Nelson</option><option>Jenny</option><option>Juan</option><option>Elizabeth</option><option>Valeria</option><option>Betty</option>
                 </select>
                 <select id="p-cli" class="w-full p-3 rounded-xl font-bold text-xs"></select>
                 
                 <div class="bg-slate-800/50 p-4 rounded-3xl border border-dashed border-slate-600">
-                    <p class="text-[9px] font-bold text-slate-400 mb-2 uppercase text-center">Configurar Vaso</p>
+                    <p class="text-[9px] font-bold text-slate-400 mb-2 uppercase text-center tracking-widest italic">Seleccionar Vaso</p>
                     <select id="p-v" class="w-full p-3 rounded-xl font-bold text-xs mb-3"></select>
                     <div id="grid-toppings" class="grid grid-cols-2 gap-2 mb-4"></div>
                     <button onclick="agregarAlCarrito()" class="w-full bg-blue-600 py-3 rounded-xl font-black text-[10px] uppercase tap">+ Añadir Vaso</button>
@@ -73,7 +72,7 @@
 
                 <div class="grid grid-cols-2 gap-2 mt-4">
                     <input type="number" id="p-desc" placeholder="Descuento $" oninput="dibujarCarrito()" class="p-3 rounded-xl font-black text-xs text-red-400">
-                    <textarea id="p-nota" placeholder="Notas (ej: Sin crema)" class="p-3 rounded-xl text-xs font-bold h-12"></textarea>
+                    <textarea id="p-nota" placeholder="Notas (Barrio, hora, etc)" class="p-3 rounded-xl text-xs font-bold h-12"></textarea>
                 </div>
             </div>
 
@@ -93,9 +92,13 @@
             <h2 class="text-blue-400 font-black mb-4 uppercase text-center italic text-sm">Directorio Clientes</h2>
             <div class="space-y-2 mb-4 bg-slate-800/50 p-4 rounded-3xl border border-slate-700">
                 <input type="hidden" id="edit-id-c">
-                <input type="text" id="c-n" placeholder="Nombre Cliente" class="w-full p-3 rounded-xl font-bold text-xs uppercase">
+                <input type="text" id="c-n" placeholder="Nombre Completo" class="w-full p-3 rounded-xl font-bold text-xs uppercase">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="c-barrio" placeholder="Barrio" class="p-3 rounded-xl font-bold text-xs">
+                    <input type="tel" id="c-tel" placeholder="Teléfono" class="p-3 rounded-xl font-bold text-xs">
+                </div>
                 <div class="flex gap-2">
-                    <input type="number" id="c-p" placeholder="Precio Especial" class="flex-1 p-3 rounded-xl font-black text-blue-400 text-xs">
+                    <input type="number" id="c-p" placeholder="Precio Base $" class="flex-1 p-3 rounded-xl font-black text-blue-400 text-xs">
                     <button onclick="guardarC()" id="btn-c-save" class="bg-blue-600 px-6 rounded-xl font-black tap uppercase text-[10px] text-white">Guardar</button>
                 </div>
             </div>
@@ -104,16 +107,46 @@
         </div>
     </div>
 
-    <div id="m-config" class="modal"><div class="bg-slate-900 w-full max-w-md p-6 rounded-[2.5rem] border border-yellow-500/30 flex flex-col h-[90vh]"><h2 class="text-yellow-500 font-black mb-4 uppercase text-center italic text-sm">Ajustes de Precios</h2><div class="overflow-y-auto flex-1 space-y-6"><div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700"><p class="text-[10px] font-black text-blue-400 mb-3 uppercase tracking-widest">📋 Capacidades Vasos</p><div class="flex gap-2 mb-3"><input type="hidden" id="edit-v-id"><input type="text" id="v-nom" placeholder="Ej: 12oz" class="flex-1 p-2 rounded-xl text-xs font-bold"><input type="number" id="v-pre" placeholder="$" class="w-20 p-2 rounded-xl text-xs font-black"><button onclick="guardarVaso()" class="bg-blue-600 px-3 rounded-xl font-bold text-xs tap">OK</button></div><div id="l-vasos" class="space-y-1"></div></div><div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700"><p class="text-[10px] font-black text-rose-400 mb-3 uppercase tracking-widest">🍫 Toppings</p><div class="flex gap-2 mb-3"><input type="hidden" id="edit-t-id"><input type="text" id="t-nom" placeholder="Ej: Oreo" class="flex-1 p-2 rounded-xl text-xs font-bold"><input type="number" id="t-pre" placeholder="$" class="w-20 p-2 rounded-xl text-xs font-black"><button onclick="guardarTopping()" class="bg-rose-600 px-3 rounded-xl font-bold text-xs tap">OK</button></div><div id="l-toppings" class="space-y-1"></div></div></div><button onclick="cerrar()" class="mt-4 text-slate-500 text-[10px] font-bold text-center w-full py-2 uppercase">Cerrar Ajustes</button></div></div>
+    <div id="m-config" class="modal">
+        <div class="bg-slate-900 w-full max-w-md p-6 rounded-[2.5rem] border border-yellow-500/30 flex flex-col h-[90vh]">
+            <h2 class="text-yellow-500 font-black mb-4 uppercase text-center italic text-sm">Ajustes del Sistema</h2>
+            
+            <div class="overflow-y-auto flex-1 space-y-6">
+                <div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700">
+                    <p class="text-[10px] font-black text-yellow-400 mb-3 uppercase tracking-widest">👥 Personal (Atención)</p>
+                    <div class="flex gap-2 mb-3">
+                        <input type="hidden" id="edit-u-id">
+                        <input type="text" id="u-nom" placeholder="Nombre Colaborador" class="flex-1 p-2 rounded-xl text-xs font-bold uppercase">
+                        <button onclick="guardarUser()" class="bg-yellow-600 px-4 rounded-xl font-bold text-xs tap text-black">OK</button>
+                    </div>
+                    <div id="l-users" class="space-y-1"></div>
+                </div>
+
+                <div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700">
+                    <p class="text-[10px] font-black text-blue-400 mb-3 uppercase tracking-widest">📋 Capacidades Vasos</p>
+                    <div class="flex gap-2 mb-3"><input type="hidden" id="edit-v-id"><input type="text" id="v-nom" placeholder="Ej: 12oz" class="flex-1 p-2 rounded-xl text-xs font-bold"><input type="number" id="v-pre" placeholder="$" class="w-20 p-2 rounded-xl text-xs font-black"><button onclick="guardarVaso()" class="bg-blue-600 px-3 rounded-xl font-bold text-xs tap">OK</button></div>
+                    <div id="l-vasos" class="space-y-1"></div>
+                </div>
+
+                <div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700">
+                    <p class="text-[10px] font-black text-rose-400 mb-3 uppercase tracking-widest">🍫 Toppings</p>
+                    <div class="flex gap-2 mb-3"><input type="hidden" id="edit-t-id"><input type="text" id="t-nom" placeholder="Ej: Oreo" class="flex-1 p-2 rounded-xl text-xs font-bold"><input type="number" id="t-pre" placeholder="$" class="w-20 p-2 rounded-xl text-xs font-black"><button onclick="guardarTopping()" class="bg-rose-600 px-3 rounded-xl font-bold text-xs tap">OK</button></div>
+                    <div id="l-toppings" class="space-y-1"></div>
+                </div>
+            </div>
+            <button onclick="cerrar()" class="mt-4 text-slate-500 text-[10px] font-bold text-center w-full py-2 uppercase">Cerrar Ajustes</button>
+        </div>
+    </div>
+
     <div id="m-gastos" class="modal"><div class="bg-slate-900 w-full max-w-md p-6 rounded-[2.5rem] border border-red-500/30 h-[80vh] flex flex-col"><h2 class="text-red-500 font-black mb-4 uppercase text-center italic text-sm">Gastos del Día</h2><div class="space-y-2 mb-4 bg-red-900/10 p-4 rounded-3xl border border-red-900/20"><input type="text" id="g-desc" placeholder="Descripción" class="w-full p-3 rounded-xl font-bold text-xs"><input type="number" id="g-val" placeholder="Valor $" class="w-full p-3 rounded-xl font-black text-red-400 text-xs"><button onclick="guardarGasto()" class="w-full bg-red-600 py-3 rounded-xl font-black tap uppercase text-xs text-white">Registrar Gasto</button></div><div id="l-gastos" class="overflow-y-auto flex-1 space-y-2"></div><button onclick="cerrar()" class="mt-4 text-slate-500 text-[10px] font-bold py-2 uppercase">Cerrar</button></div></div>
-    <div id="m-pago" class="modal"><div class="bg-slate-900 w-full max-w-xs p-8 rounded-[3rem] text-center border border-green-500/30"><h3 class="text-green-400 font-black mb-8 uppercase italic tracking-tighter">Cobrar Pedido</h3><input type="hidden" id="pago-id"><div class="space-y-4"><button onclick="pagoFin('Efectivo')" class="w-full bg-green-600 p-5 rounded-2xl font-black tap text-white uppercase text-xs tracking-widest">💰 Efectivo</button><button onclick="pagoFin('Transferencia')" class="w-full bg-blue-600 p-5 rounded-2xl font-black tap text-white uppercase text-xs tracking-widest">📱 Transf.</button><button onclick="cerrar()" class="w-full text-slate-500 font-bold mt-4 text-[10px] uppercase">Atrás</button></div></div></div>
+    <div id="m-pago" class="modal"><div class="bg-slate-900 w-full max-w-xs p-8 rounded-[3rem] text-center border border-green-500/30 shadow-2xl"><h3 class="text-green-400 font-black mb-8 uppercase italic tracking-tighter">Cobrar Pedido</h3><input type="hidden" id="pago-id"><div class="space-y-4"><button onclick="pagoFin('Efectivo')" class="w-full bg-green-600 p-5 rounded-2xl font-black tap text-white uppercase text-xs">💰 Efectivo</button><button onclick="pagoFin('Transferencia')" class="w-full bg-blue-600 p-5 rounded-2xl font-black tap text-white uppercase text-xs">📱 Transf.</button><button onclick="cerrar()" class="w-full text-slate-500 font-bold mt-4 text-[10px] uppercase">Atrás</button></div></div></div>
 
     <script>
         const config = { apiKey: "AIzaSyBZ93gaPrEkHY5gsNgkBxLEH_GHko_ijFs", authDomain: "delicias--niza.firebaseapp.com", databaseURL: "https://delicias--niza-default-rtdb.firebaseio.com", projectId: "delicias--niza" };
         firebase.initializeApp(config);
         const db = firebase.database();
         
-        let CLIS = [], PEDS = [], GASTOS = [], BASES = {}, TOPS = [], VASOS = [], CARRITO = [];
+        let CLIS = [], PEDS = [], GASTOS = [], BASES = {}, TOPS = [], VASOS = [], USERS = [], CARRITO = [];
         const fmt = (n) => new Intl.NumberFormat('de-DE').format(n || 0);
 
         document.getElementById('fecha-app').value = new Date().toISOString().split('T')[0];
@@ -125,24 +158,50 @@
         db.ref('fresas_niza/bases').on('value', s => { BASES = s.val() || {}; cargarDatosDia(); });
         db.ref('fresas_niza/toppings').on('value', s => { TOPS = s.val() ? Object.entries(s.val()).map(([id, d]) => ({id, ...d})) : []; dibujarConfigTOPS(); });
         db.ref('fresas_niza/vasos').on('value', s => { VASOS = s.val() ? Object.entries(s.val()).map(([id, d]) => ({id, ...d})) : []; dibujarConfigVASOS(); });
+        db.ref('fresas_niza/personal').on('value', s => { USERS = s.val() ? Object.entries(s.val()).map(([id, d]) => ({id, ...d})) : []; dibujarConfigUSERS(); });
 
         function cargarDatosDia() { document.getElementById('base-caja').value = BASES[document.getElementById('fecha-app').value] || 0; dibujarTodo(); }
         function guardarBase() { const f = document.getElementById('fecha-app').value, v = parseInt(document.getElementById('base-caja').value) || 0; db.ref('fresas_niza/bases/' + f).set(v); }
 
-        // GESTIÓN DE CLIENTES (ACTUALIZADO)
+        // GESTIÓN DE PERSONAL (NUEVO)
+        function guardarUser() {
+            const id = document.getElementById('edit-u-id').value, n = document.getElementById('u-nom').value;
+            if(n) {
+                if(id) db.ref('fresas_niza/personal/'+id).update({nombre: n.toUpperCase()});
+                else db.ref('fresas_niza/personal').push({nombre: n.toUpperCase()});
+                document.getElementById('edit-u-id').value=''; document.getElementById('u-nom').value='';
+            }
+        }
+        function edU(id) { const u = USERS.find(x=>x.id==id); document.getElementById('edit-u-id').value=u.id; document.getElementById('u-nom').value=u.nombre; }
+        function dibujarConfigUSERS() {
+            const l = document.getElementById('l-users'), sel = document.getElementById('p-atendio');
+            l.innerHTML = ''; sel.innerHTML = '<option value="">-- ¿QUIÉN ATIENDE? --</option>';
+            USERS.sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(u => {
+                l.innerHTML += `<div class="bg-slate-700/50 p-2 rounded-xl flex justify-between items-center text-[10px] mb-1"><p>${u.nombre}</p><div><button onclick="edU('${u.id}')" class="text-yellow-400 mr-3">✎</button><button onclick="db.ref('fresas_niza/personal/${u.id}').remove()" class="text-red-400">✕</button></div></div>`;
+                sel.innerHTML += `<option value="${u.nombre}">${u.nombre}</option>`;
+            });
+        }
+
+        // GESTIÓN DE CLIENTES (ACTUALIZADO CON BARRIO Y TEL)
         function guardarC() {
-            const id = document.getElementById('edit-id-c').value, n = document.getElementById('c-n').value, p = parseInt(document.getElementById('c-p').value);
+            const id = document.getElementById('edit-id-c').value, n = document.getElementById('c-n').value, b = document.getElementById('c-barrio').value, t = document.getElementById('c-tel').value, p = parseInt(document.getElementById('c-p').value);
             if(n && !isNaN(p)) {
-                if(id) db.ref('fresas_niza/clientes/'+id).update({nombre:n, precio:p});
-                else db.ref('fresas_niza/clientes').push({nombre:n, precio:p});
+                const data = { nombre: n.toUpperCase(), barrio: b || '', tel: t || '', precio: p };
+                if(id) db.ref('fresas_niza/clientes/'+id).update(data);
+                else db.ref('fresas_niza/clientes').push(data);
                 resC();
             }
         }
-        function edC(id) { const c = CLIS.find(x=>x.id==id); document.getElementById('edit-id-c').value=c.id; document.getElementById('c-n').value=c.nombre; document.getElementById('c-p').value=c.precio; document.getElementById('btn-c-save').innerText="Actualizar"; }
-        function resC() { document.getElementById('edit-id-c').value=''; document.getElementById('c-n').value=''; document.getElementById('c-p').value=''; document.getElementById('btn-c-save').innerText="Guardar"; }
-        function dibujarC() { const v = document.getElementById('l-cli'); v.innerHTML = ''; CLIS.sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(c => { v.innerHTML += `<div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center mb-2 text-[10px]"><div onclick="edC('${c.id}')"><p class="font-black">${c.nombre}</p><p class="text-blue-400">$${fmt(c.precio)}</p></div><button onclick="db.ref('fresas_niza/clientes/${c.id}').remove()" class="text-red-900 p-2">✕</button></div>`; }); }
+        function edC(id) { 
+            const c = CLIS.find(x=>x.id==id); 
+            document.getElementById('edit-id-c').value=c.id; document.getElementById('c-n').value=c.nombre;
+            document.getElementById('c-barrio').value=c.barrio || ''; document.getElementById('c-tel').value=c.tel || '';
+            document.getElementById('c-p').value=c.precio; document.getElementById('btn-c-save').innerText="Actualizar"; 
+        }
+        function resC() { document.getElementById('edit-id-c').value=''; document.getElementById('c-n').value=''; document.getElementById('c-barrio').value=''; document.getElementById('c-tel').value=''; document.getElementById('c-p').value=''; document.getElementById('btn-c-save').innerText="Guardar"; }
+        function dibujarC() { const v = document.getElementById('l-cli'); v.innerHTML = ''; CLIS.sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(c => { v.innerHTML += `<div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center mb-2 text-[10px]"><div onclick="edC('${c.id}')"><p class="font-black text-white">${c.nombre}</p><p class="text-[8px] text-slate-400 uppercase">${c.barrio || 'Sin Barrio'} - ${c.tel || 'Sin Tel'}</p></div><button onclick="db.ref('fresas_niza/clientes/${c.id}').remove()" class="text-red-900 p-2">✕</button></div>`; }); }
 
-        // ADMINISTRACIÓN DE VASOS Y TOPPINGS (v3.1)
+        // ADMINISTRACIÓN PRODUCTOS (v3.1)
         function guardarVaso() { const id=document.getElementById('edit-v-id').value, n=document.getElementById('v-nom').value, p=parseInt(document.getElementById('v-pre').value); if(n&&!isNaN(p)){ if(id) db.ref('fresas_niza/vasos/'+id).update({nombre:n, precio:p}); else db.ref('fresas_niza/vasos').push({nombre:n, precio:p}); document.getElementById('edit-v-id').value=''; document.getElementById('v-nom').value=''; document.getElementById('v-pre').value=''; } }
         function dibujarConfigVASOS() { const l=document.getElementById('l-vasos'), sel=document.getElementById('p-v'); l.innerHTML=''; sel.innerHTML='<option value="">-- ¿VASO? --</option>'; VASOS.sort((a,b)=>a.precio-b.precio).forEach(v => { l.innerHTML+=`<div class="bg-slate-700/50 p-2 rounded-xl flex justify-between items-center text-[10px] mb-1"><p>${v.nombre} - <b>$${fmt(v.precio)}</b></p><div><button onclick="edV('${v.id}')" class="text-blue-400 mr-3">✎</button><button onclick="db.ref('fresas_niza/vasos/${v.id}').remove()" class="text-red-400">✕</button></div></div>`; sel.innerHTML+=`<option value="${v.nombre}" data-p="${v.precio}">${v.nombre} ($${fmt(v.precio)})</option>`; }); }
         function edV(id) { const v=VASOS.find(x=>x.id==id); document.getElementById('edit-v-id').value=v.id; document.getElementById('v-nom').value=v.nombre; document.getElementById('v-pre').value=v.precio; }
@@ -150,7 +209,7 @@
         function dibujarConfigTOPS() { const l=document.getElementById('l-toppings'), g=document.getElementById('grid-toppings'); l.innerHTML=''; g.innerHTML=''; TOPS.forEach(t => { l.innerHTML+=`<div class="bg-slate-700/50 p-2 rounded-xl flex justify-between items-center text-[10px] mb-1"><p>${t.nombre} - <b>$${fmt(t.precio)}</b></p><div><button onclick="edT('${t.id}')" class="text-rose-400 mr-3">✎</button><button onclick="db.ref('fresas_niza/toppings/${t.id}').remove()" class="text-red-400">✕</button></div></div>`; g.innerHTML+=`<label class="topping-item"><input type="checkbox" value="${t.id}" data-p="${t.precio}" data-n="${t.nombre}"> <span>${t.nombre}<br><small>+$${fmt(t.precio)}</small></span></label>`; }); }
         function edT(id) { const t=TOPS.find(x=>x.id==id); document.getElementById('edit-t-id').value=t.id; document.getElementById('t-nom').value=t.nombre; document.getElementById('t-pre').value=t.precio; }
 
-        // VENTA Y CARRITO (v3.2)
+        // VENTA Y CARRITO
         function agregarAlCarrito() {
             const sV = document.getElementById('p-v');
             const v = sV.value, pV = parseInt(sV.options[sV.selectedIndex].getAttribute('data-p')) || 0;
@@ -178,17 +237,16 @@
         // DIBUJO GENERAL
         function dibujarTodo() {
             const fS = document.getElementById('fecha-app').value, vP = document.getElementById('lista-peds'), vG = document.getElementById('l-gastos');
-            vP.innerHTML = ''; vG.innerHTML = ''; let t1=0, t2=0, vHoy=0, dHoy=0, gHoy=0;
+            vP.innerHTML = ''; vG.innerHTML = ''; let vHoy=0, gHoy=0;
             const base = Number(BASES[fS]) || 0;
 
             PEDS.filter(p => p.fecha == fS).reverse().forEach(p => {
-                t1 += Number(p.cant); if(p.entregado) t2 += Number(p.cant);
-                if(p.pagado) vHoy += Number(p.total); else dHoy += Number(p.total);
-                vP.innerHTML += `<div class="card-p" style="border-color:${p.pagado ? '#22c55e' : (p.entregado ? '#3b82f6' : '#f43f5e')}"><div class="mb-3"><div class="flex justify-between items-start"><p class="font-black text-xs uppercase">${p.cliente}</p><p class="font-black text-lg text-white">$${fmt(p.total)}</p></div><p class="text-[8px] text-yellow-500 font-bold italic">Atendió: ${p.atendio}</p><p class="text-[9px] text-slate-400 mt-1 leading-tight">${p.detalle}</p>${p.nota ? `<p class="text-[8px] text-blue-300 italic mt-1">📝 ${p.nota}</p>` : ''}</div><div class="flex gap-2"><button onclick="db.ref('fresas_niza/pedidos/${p.id}').update({entregado:!${p.entregado}})" class="flex-1 py-3 rounded-2xl text-[9px] font-black ${p.entregado?'bg-blue-900/40 text-blue-400':'bg-slate-700 text-slate-200'} tracking-widest">${p.entregado?'LISTO':'🚚 DESPACHAR'}</button>${!p.pagado ? `<button onclick="abPago('${p.id}')" class="bg-green-600 px-6 rounded-2xl text-[9px] font-black uppercase text-white tap">Cobrar</button>` : `<button onclick="confirm('¿Borrar?')&&db.ref('fresas_niza/pedidos/${p.id}').remove()" class="bg-slate-800 px-4 rounded-2xl text-slate-600 tap">✕</button>`}</div></div>`;
+                if(p.pagado) vHoy += Number(p.total);
+                vP.innerHTML += `<div class="card-p" style="border-color:${p.pagado ? '#22c55e' : (p.entregado ? '#3b82f6' : '#f43f5e')}"><div class="mb-3"><div class="flex justify-between items-start"><p class="font-black text-xs uppercase">${p.cliente}</p><p class="font-black text-lg text-white">$${fmt(p.total)}</p></div><p class="text-[8px] text-yellow-500 font-bold italic uppercase">Atendió: ${p.atendio}</p><p class="text-[9px] text-slate-400 mt-1 leading-tight">${p.detalle}</p>${p.nota ? `<p class="text-[8px] text-blue-300 italic mt-1">📝 ${p.nota}</p>` : ''}</div><div class="flex gap-2"><button onclick="db.ref('fresas_niza/pedidos/${p.id}').update({entregado:!${p.entregado}})" class="flex-1 py-3 rounded-2xl text-[9px] font-black ${p.entregado?'bg-blue-900/40 text-blue-400':'bg-slate-700 text-slate-200'} tracking-widest">${p.entregado?'LISTO':'🚚 DESPACHAR'}</button>${!p.pagado ? `<button onclick="abPago('${p.id}')" class="bg-green-600 px-6 rounded-2xl text-[9px] font-black uppercase text-white tap">Cobrar</button>` : `<button onclick="confirm('¿Borrar?')&&db.ref('fresas_niza/pedidos/${p.id}').remove()" class="bg-slate-800 px-4 rounded-2xl text-slate-600 tap">✕</button>`}</div></div>`;
             });
             GASTOS.filter(g => g.fecha == fS).forEach(g => { gHoy += Number(g.val); vG.innerHTML += `<div class="bg-red-900/10 p-2 rounded-xl flex justify-between items-center text-[10px] mb-1"><p>${g.desc}</p><span class="text-red-400 font-black">-$${fmt(g.val)}</span><button onclick="db.ref('fresas_niza/gastos/${g.id}').remove()" class="text-red-900 px-2 font-bold">✕</button></div>`; });
-            document.getElementById('total-ventas').innerText = 'VENTAS: $' + fmt(vHoy);
-            document.getElementById('total-caja').innerText = 'CAJA: $' + fmt( (base + vHoy) - gHoy );
+            document.getElementById('total-ventas').innerText = '$' + fmt(vHoy);
+            document.getElementById('total-caja').innerText = '$' + fmt( (base + vHoy) - gHoy );
         }
 
         // AUXILIARES
