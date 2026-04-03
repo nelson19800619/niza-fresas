@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NIZA - CONTROL TOTAL V3.4</title>
+    <title>NIZA - CONTROL TOTAL V3.6</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -23,7 +23,7 @@
         <div class="flex justify-between items-center mb-4">
             <div class="flex flex-col">
                 <h1 class="font-black italic text-lg uppercase tracking-tighter text-white">🍓 Delicias Niza</h1>
-                <span class="text-[8px] font-bold opacity-60 text-white uppercase">V3.4 - Directorio de Contactos</span>
+                <span class="text-[8px] font-bold opacity-60 text-white uppercase">V3.6 - Logística de Entrega</span>
             </div>
             <div class="flex gap-1">
                 <button onclick="abrirModConfig()" class="bg-black/30 p-2 rounded-xl text-[8px] font-bold border border-white/10 text-yellow-200 uppercase">⚙️ Ajustes</button>
@@ -45,7 +45,7 @@
     <main class="p-4">
         <button onclick="abrirModPed()" class="w-full bg-rose-600 p-5 rounded-3xl font-black text-base tap uppercase mb-6 shadow-lg border-b-4 border-rose-900 text-white italic tracking-widest">🚀 Nueva Venta</button>
         <div class="flex items-center justify-between mb-6 px-1">
-            <h2 class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Fecha:</h2>
+            <h2 class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ver pedidos del día:</h2>
             <input type="date" id="fecha-app" onchange="cargarDatosDia()" class="bg-slate-800 p-2 rounded-xl text-xs font-bold border-none">
         </div>
         <div id="lista-peds" class="space-y-4"></div>
@@ -56,6 +56,20 @@
             <h2 class="text-rose-500 font-black mb-4 text-center uppercase tracking-widest italic text-sm">Registrar Venta</h2>
             
             <div class="space-y-3 overflow-y-auto flex-1 pr-2">
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-slate-800/30 p-2 rounded-xl border border-slate-700">
+                        <p class="text-[7px] font-black text-slate-500 uppercase mb-1">📅 Fecha</p>
+                        <input type="date" id="p-fecha-venta" class="w-full p-2 rounded-lg text-[10px] font-bold">
+                    </div>
+                    <div class="bg-slate-800/30 p-2 rounded-xl border border-slate-700">
+                        <p class="text-[7px] font-black text-slate-500 uppercase mb-1">🛵 Entrega</p>
+                        <select id="p-tipo-entrega" class="w-full p-2 rounded-lg text-[10px] font-bold">
+                            <option value="Domicilio">🛵 Domicilio</option>
+                            <option value="Recoge">🚶 Recogen</option>
+                        </select>
+                    </div>
+                </div>
+
                 <select id="p-atendio" class="w-full p-3 rounded-xl font-black text-yellow-500 text-xs">
                     <option value="">-- ¿QUIÉN ATIENDE? --</option>
                 </select>
@@ -72,7 +86,7 @@
 
                 <div class="grid grid-cols-2 gap-2 mt-4">
                     <input type="number" id="p-desc" placeholder="Descuento $" oninput="dibujarCarrito()" class="p-3 rounded-xl font-black text-xs text-red-400">
-                    <textarea id="p-nota" placeholder="Notas (Barrio, hora, etc)" class="p-3 rounded-xl text-xs font-bold h-12"></textarea>
+                    <textarea id="p-nota" placeholder="Notas adicionales..." class="p-3 rounded-xl text-xs font-bold h-12"></textarea>
                 </div>
             </div>
 
@@ -87,47 +101,8 @@
         </div>
     </div>
 
-    <div id="m-cli" class="modal">
-        <div class="bg-slate-900 w-full max-w-md p-6 rounded-[2.5rem] h-[85vh] flex flex-col border border-blue-500/20">
-            <h2 class="text-blue-400 font-black mb-4 uppercase text-center italic text-sm">Directorio Clientes</h2>
-            <div class="space-y-2 mb-4 bg-slate-800/50 p-4 rounded-3xl border border-slate-700">
-                <input type="hidden" id="edit-id-c">
-                <input type="text" id="c-n" placeholder="Nombre Completo" class="w-full p-3 rounded-xl font-bold text-xs uppercase">
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="c-barrio" placeholder="Barrio" class="p-3 rounded-xl font-bold text-xs">
-                    <input type="tel" id="c-tel" placeholder="Teléfono" class="p-3 rounded-xl font-bold text-xs">
-                </div>
-                <button onclick="guardarC()" id="btn-c-save" class="w-full bg-blue-600 py-3 rounded-xl font-black tap uppercase text-[10px] text-white">Guardar Cliente</button>
-            </div>
-            <div id="l-cli" class="overflow-y-auto flex-1 space-y-2"></div>
-            <button onclick="cerrar()" class="mt-4 text-slate-500 text-[10px] font-bold py-2 uppercase">Cerrar</button>
-        </div>
-    </div>
-
-    <div id="m-config" class="modal">
-        <div class="bg-slate-900 w-full max-w-md p-6 rounded-[2.5rem] border border-yellow-500/30 flex flex-col h-[90vh]">
-            <h2 class="text-yellow-500 font-black mb-4 uppercase text-center italic text-sm">Ajustes del Sistema</h2>
-            <div class="overflow-y-auto flex-1 space-y-6">
-                <div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700">
-                    <p class="text-[10px] font-black text-yellow-400 mb-3 uppercase tracking-widest">👥 Personal (Atención)</p>
-                    <div class="flex gap-2 mb-3"><input type="hidden" id="edit-u-id"><input type="text" id="u-nom" placeholder="Nombre" class="flex-1 p-2 rounded-xl text-xs font-bold uppercase"><button onclick="guardarUser()" class="bg-yellow-600 px-4 rounded-xl font-bold text-xs tap text-black">OK</button></div>
-                    <div id="l-users" class="space-y-1"></div>
-                </div>
-                <div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700">
-                    <p class="text-[10px] font-black text-blue-400 mb-3 uppercase tracking-widest">📋 Capacidades Vasos</p>
-                    <div class="flex gap-2 mb-3"><input type="hidden" id="edit-v-id"><input type="text" id="v-nom" placeholder="Ej: 12oz" class="flex-1 p-2 rounded-xl text-xs font-bold"><input type="number" id="v-pre" placeholder="$" class="w-20 p-2 rounded-xl text-xs font-black"><button onclick="guardarVaso()" class="bg-blue-600 px-3 rounded-xl font-bold text-xs tap">OK</button></div>
-                    <div id="l-vasos" class="space-y-1"></div>
-                </div>
-                <div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700">
-                    <p class="text-[10px] font-black text-rose-400 mb-3 uppercase tracking-widest">🍫 Toppings</p>
-                    <div class="flex gap-2 mb-3"><input type="hidden" id="edit-t-id"><input type="text" id="t-nom" placeholder="Ej: Oreo" class="flex-1 p-2 rounded-xl text-xs font-bold"><input type="number" id="t-pre" placeholder="$" class="w-20 p-2 rounded-xl text-xs font-black"><button onclick="guardarTopping()" class="bg-rose-600 px-3 rounded-xl font-bold text-xs tap">OK</button></div>
-                    <div id="l-toppings" class="space-y-1"></div>
-                </div>
-            </div>
-            <button onclick="cerrar()" class="mt-4 text-slate-500 text-[10px] font-bold text-center w-full py-2 uppercase">Cerrar Ajustes</button>
-        </div>
-    </div>
-
+    <div id="m-cli" class="modal"><div class="bg-slate-900 w-full max-w-md p-6 rounded-[2.5rem] h-[85vh] flex flex-col border border-blue-500/20"><h2 class="text-blue-400 font-black mb-4 uppercase text-center italic text-sm">Directorio Clientes</h2><div class="space-y-2 mb-4 bg-slate-800/50 p-4 rounded-3xl border border-slate-700"><input type="hidden" id="edit-id-c"><input type="text" id="c-n" placeholder="Nombre Completo" class="w-full p-3 rounded-xl font-bold text-xs uppercase"><div class="grid grid-cols-2 gap-2"><input type="text" id="c-barrio" placeholder="Barrio" class="p-3 rounded-xl font-bold text-xs"><input type="tel" id="c-tel" placeholder="Teléfono" class="p-3 rounded-xl font-bold text-xs"></div><button onclick="guardarC()" id="btn-c-save" class="w-full bg-blue-600 py-3 rounded-xl font-black tap uppercase text-[10px] text-white">Guardar Cliente</button></div><div id="l-cli" class="overflow-y-auto flex-1 space-y-2"></div><button onclick="cerrar()" class="mt-4 text-slate-500 text-[10px] font-bold py-2 uppercase">Cerrar</button></div></div>
+    <div id="m-config" class="modal"><div class="bg-slate-900 w-full max-w-md p-6 rounded-[2.5rem] border border-yellow-500/30 flex flex-col h-[90vh]"><h2 class="text-yellow-500 font-black mb-4 uppercase text-center italic text-sm">Ajustes del Sistema</h2><div class="overflow-y-auto flex-1 space-y-6"><div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700"><p class="text-[10px] font-black text-yellow-400 mb-3 uppercase tracking-widest">👥 Personal (Atención)</p><div class="flex gap-2 mb-3"><input type="hidden" id="edit-u-id"><input type="text" id="u-nom" placeholder="Nombre" class="flex-1 p-2 rounded-xl text-xs font-bold uppercase"><button onclick="guardarUser()" class="bg-yellow-600 px-4 rounded-xl font-bold text-xs tap text-black">OK</button></div><div id="l-users" class="space-y-1"></div></div><div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700"><p class="text-[10px] font-black text-blue-400 mb-3 uppercase tracking-widest">📋 Capacidades Vasos</p><div class="flex gap-2 mb-3"><input type="hidden" id="edit-v-id"><input type="text" id="v-nom" placeholder="Ej: 12oz" class="flex-1 p-2 rounded-xl text-xs font-bold"><input type="number" id="v-pre" placeholder="$" class="w-20 p-2 rounded-xl text-xs font-black"><button onclick="guardarVaso()" class="bg-blue-600 px-3 rounded-xl font-bold text-xs tap">OK</button></div><div id="l-vasos" class="space-y-1"></div></div><div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700"><p class="text-[10px] font-black text-rose-400 mb-3 uppercase tracking-widest">🍫 Toppings</p><div class="flex gap-2 mb-3"><input type="hidden" id="edit-t-id"><input type="text" id="t-nom" placeholder="Ej: Oreo" class="flex-1 p-2 rounded-xl text-xs font-bold"><input type="number" id="t-pre" placeholder="$" class="w-20 p-2 rounded-xl text-xs font-black"><button onclick="guardarTopping()" class="bg-rose-600 px-3 rounded-xl font-bold text-xs tap">OK</button></div><div id="l-toppings" class="space-y-1"></div></div></div><button onclick="cerrar()" class="mt-4 text-slate-500 text-[10px] font-bold text-center w-full py-2 uppercase">Cerrar Ajustes</button></div></div>
     <div id="m-gastos" class="modal"><div class="bg-slate-900 w-full max-w-md p-6 rounded-[2.5rem] border border-red-500/30 h-[80vh] flex flex-col"><h2 class="text-red-500 font-black mb-4 uppercase text-center italic text-sm">Gastos del Día</h2><div class="space-y-2 mb-4 bg-red-900/10 p-4 rounded-3xl border border-red-900/20"><input type="text" id="g-desc" placeholder="Descripción" class="w-full p-3 rounded-xl font-bold text-xs"><input type="number" id="g-val" placeholder="Valor $" class="w-full p-3 rounded-xl font-black text-red-400 text-xs"><button onclick="guardarGasto()" class="w-full bg-red-600 py-3 rounded-xl font-black tap uppercase text-xs text-white">Registrar Gasto</button></div><div id="l-gastos" class="overflow-y-auto flex-1 space-y-2"></div><button onclick="cerrar()" class="mt-4 text-slate-500 text-[10px] font-bold py-2 uppercase">Cerrar</button></div></div>
     <div id="m-pago" class="modal"><div class="bg-slate-900 w-full max-w-xs p-8 rounded-[3rem] text-center border border-green-500/30 shadow-2xl"><h3 class="text-green-400 font-black mb-8 uppercase italic tracking-tighter">Cobrar Pedido</h3><input type="hidden" id="pago-id"><div class="space-y-4"><button onclick="pagoFin('Efectivo')" class="w-full bg-green-600 p-5 rounded-2xl font-black tap text-white uppercase text-xs">💰 Efectivo</button><button onclick="pagoFin('Transferencia')" class="w-full bg-blue-600 p-5 rounded-2xl font-black tap text-white uppercase text-xs">📱 Transf.</button><button onclick="cerrar()" class="w-full text-slate-500 font-bold mt-4 text-[10px] uppercase">Atrás</button></div></div></div>
 
@@ -139,7 +114,8 @@
         let CLIS = [], PEDS = [], GASTOS = [], BASES = {}, TOPS = [], VASOS = [], USERS = [], CARRITO = [];
         const fmt = (n) => new Intl.NumberFormat('de-DE').format(n || 0);
 
-        document.getElementById('fecha-app').value = new Date().toISOString().split('T')[0];
+        const hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('fecha-app').value = hoy;
 
         // Sincronización Realtime
         db.ref('fresas_niza/clientes').on('value', s => { CLIS = s.val() ? Object.entries(s.val()).map(([id, d]) => ({id, ...d})) : []; actualizarSelects(); dibujarC(); });
@@ -212,11 +188,11 @@
             document.getElementById('total-carro').innerText = '$' + fmt(sub - desc);
         }
         function guardarP() {
-            const ate = document.getElementById('p-atendio').value, cN = document.getElementById('p-cli').value;
-            if(!ate || !cN || CARRITO.length == 0) return alert("Faltan datos");
+            const ate = document.getElementById('p-atendio').value, cN = document.getElementById('p-cli').value, fV = document.getElementById('p-fecha-venta').value, tE = document.getElementById('p-tipo-entrega').value;
+            if(!ate || !cN || !fV || CARRITO.length == 0) return alert("Faltan datos");
             const sub = CARRITO.reduce((a, b) => a + b.totalItem, 0);
             const desc = parseInt(document.getElementById('p-desc').value) || 0;
-            const o = { cliente: cN, atendio: ate, detalle: CARRITO.map(i => `${i.vaso}(${i.tops.join('+') || 'S'})`).join(' | '), nota: document.getElementById('p-nota').value, total: sub - desc, cant: CARRITO.length, fecha: document.getElementById('fecha-app').value, entregado: false, pagado: false };
+            const o = { cliente: cN, atendio: ate, entrega: tE, detalle: CARRITO.map(i => `${i.vaso}(${i.tops.join('+') || 'S'})`).join(' | '), nota: document.getElementById('p-nota').value, total: sub - desc, cant: CARRITO.length, fecha: fV, entregado: false, pagado: false };
             db.ref('fresas_niza/pedidos').push(o).then(() => { CARRITO = []; cerrar(); });
         }
 
@@ -227,14 +203,25 @@
 
             PEDS.filter(p => p.fecha == fS).reverse().forEach(p => {
                 if(p.pagado) vHoy += Number(p.total);
-                vP.innerHTML += `<div class="card-p" style="border-color:${p.pagado ? '#22c55e' : (p.entregado ? '#3b82f6' : '#f43f5e')}"><div class="mb-3"><div class="flex justify-between items-start"><p class="font-black text-xs uppercase">${p.cliente}</p><p class="font-black text-lg text-white">$${fmt(p.total)}</p></div><p class="text-[8px] text-yellow-500 font-bold italic uppercase">Atendió: ${p.atendio}</p><p class="text-[9px] text-slate-400 mt-1 leading-tight">${p.detalle}</p>${p.nota ? `<p class="text-[8px] text-blue-300 italic mt-1">📝 ${p.nota}</p>` : ''}</div><div class="flex gap-2"><button onclick="db.ref('fresas_niza/pedidos/${p.id}').update({entregado:!${p.entregado}})" class="flex-1 py-3 rounded-2xl text-[9px] font-black ${p.entregado?'bg-blue-900/40 text-blue-400':'bg-slate-700 text-slate-200'} tracking-widest">${p.entregado?'LISTO':'🚚 DESPACHAR'}</button>${!p.pagado ? `<button onclick="abPago('${p.id}')" class="bg-green-600 px-6 rounded-2xl text-[9px] font-black uppercase text-white tap">Cobrar</button>` : `<button onclick="confirm('¿Borrar?')&&db.ref('fresas_niza/pedidos/${p.id}').remove()" class="bg-slate-800 px-4 rounded-2xl text-slate-600 tap">✕</button>`}</div></div>`;
+                const ic = p.entrega === 'Domicilio' ? '🛵' : '🚶';
+                const col = p.entrega === 'Domicilio' ? 'text-blue-400' : 'text-yellow-400';
+                
+                vP.innerHTML += `<div class="card-p" style="border-color:${p.pagado ? '#22c55e' : (p.entregado ? '#3b82f6' : '#f43f5e')}"><div class="mb-3"><div class="flex justify-between items-start"><div><p class="font-black text-xs uppercase">${p.cliente}</p><p class="text-[9px] font-bold ${col}">${ic} ${p.entrega}</p></div><p class="font-black text-lg text-white">$${fmt(p.total)}</p></div><p class="text-[8px] text-yellow-500 font-bold italic uppercase mt-1">Atendió: ${p.atendio}</p><p class="text-[9px] text-slate-400 mt-1 leading-tight">${p.detalle}</p>${p.nota ? `<p class="text-[8px] text-blue-300 italic mt-1">📝 ${p.nota}</p>` : ''}</div><div class="flex gap-2"><button onclick="db.ref('fresas_niza/pedidos/${p.id}').update({entregado:!${p.entregado}})" class="flex-1 py-3 rounded-2xl text-[9px] font-black ${p.entregado?'bg-blue-900/40 text-blue-400':'bg-slate-700 text-slate-200'} tracking-widest">${p.entregado?'LISTO':'🚚 DESPACHAR'}</button>${!p.pagado ? `<button onclick="abPago('${p.id}')" class="bg-green-600 px-6 rounded-2xl text-[9px] font-black uppercase text-white tap">Cobrar</button>` : `<button onclick="confirm('¿Borrar?')&&db.ref('fresas_niza/pedidos/${p.id}').remove()" class="bg-slate-800 px-4 rounded-2xl text-slate-600 tap">✕</button>`}</div></div>`;
             });
             GASTOS.filter(g => g.fecha == fS).forEach(g => { gHoy += Number(g.val); vG.innerHTML += `<div class="bg-red-900/10 p-2 rounded-xl flex justify-between items-center text-[10px] mb-1"><p>${g.desc}</p><span class="text-red-400 font-black">-$${fmt(g.val)}</span><button onclick="db.ref('fresas_niza/gastos/${g.id}').remove()" class="text-red-900 px-2 font-bold">✕</button></div>`; });
             document.getElementById('total-ventas').innerText = '$' + fmt(vHoy);
             document.getElementById('total-caja').innerText = '$' + fmt( (base + vHoy) - gHoy );
         }
 
-        function abrirModPed(){ CARRITO=[]; document.getElementById('p-desc').value=''; document.getElementById('p-nota').value=''; dibujarCarrito(); document.getElementById('m-ped').style.display='flex'; }
+        function abrirModPed(){ 
+            CARRITO=[]; 
+            document.getElementById('p-fecha-venta').value = document.getElementById('fecha-app').value;
+            document.getElementById('p-desc').value=''; 
+            document.getElementById('p-nota').value=''; 
+            document.getElementById('p-tipo-entrega').value='Domicilio';
+            dibujarCarrito(); 
+            document.getElementById('m-ped').style.display='flex'; 
+        }
         function abrirModConfig(){ document.getElementById('m-config').style.display='flex'; }
         function abrirGastos(){ document.getElementById('m-gastos').style.display='flex'; }
         function abrirModCli(){ resC(); document.getElementById('m-cli').style.display='flex'; }
