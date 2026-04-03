@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NIZA - REPORTE PRO V4.7</title>
+    <title>NIZA - REPORTE DETALLADO V4.8</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,8 +15,8 @@
         .card-p { background: #1e293b; border-left: 6px solid #334155; margin-bottom: 12px; padding: 15px; border-radius: 20px; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; align-items: center; justify-content: center; padding: 15px; overflow-y: auto; }
         input, select, textarea { color: white !important; background-color: #1e293b !important; outline: none; border: 1px solid #475569 !important; border-radius: 12px !important; }
-        th, td { border: 1px solid #334155; padding: 10px; text-align: left; font-size: 9px; }
-        th { background: #0f172a; color: #94a3b8; text-transform: uppercase; font-weight: 900; }
+        th, td { border: 1px solid #475569; padding: 10px; text-align: left; font-size: 9px; }
+        th { background: #1e293b; color: #f8fafc; text-transform: uppercase; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -25,7 +25,7 @@
         <div class="flex justify-between items-center mb-4">
             <div class="flex flex-col">
                 <h1 class="font-black italic text-lg uppercase tracking-tighter text-rose-500">🍓 Delicias Niza</h1>
-                <span class="text-[8px] font-bold opacity-60 text-slate-400 uppercase">V4.7 - Reporte Detallado</span>
+                <span class="text-[8px] font-bold opacity-60 text-slate-400 uppercase">V4.8 - Desglose de Precios</span>
             </div>
             <div class="flex gap-1">
                 <button onclick="abrirModReporte()" class="bg-blue-600 p-2 rounded-xl text-[8px] font-black text-white uppercase tap px-3">📊 REPORTE</button>
@@ -49,25 +49,26 @@
     <div id="m-reporte" class="modal">
         <div class="bg-slate-900 w-full max-w-7xl p-6 rounded-[2.5rem] h-[90vh] flex flex-col border border-blue-500/30">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-blue-400 font-black uppercase italic text-sm">Operación Detallada</h2>
+                <h2 class="text-blue-400 font-black uppercase italic text-sm">Auditoría Detallada</h2>
                 <button onclick="exportarExcel()" class="bg-emerald-600 text-[10px] font-black px-4 py-2 rounded-xl uppercase tap">📥 Exportar Excel</button>
             </div>
             <input type="text" id="bus-rep" oninput="dibujarTodo()" placeholder="🔍 Filtrar cliente..." class="bg-slate-800 p-3 rounded-xl text-xs w-full mb-4 border border-slate-700">
             <div class="overflow-auto flex-1 rounded-2xl border border-slate-700 bg-slate-800/20">
-                <table id="tabla-reporte" class="w-full text-white min-w-[1100px]">
-                    <thead id="head-excel">
+                <table id="tabla-reporte" class="w-full text-white min-w-[1300px]">
+                    <thead>
                         <tr>
                             <th>CLIENTE</th>
                             <th>ENTREGA</th>
                             <th>ESTADO</th>
                             <th>CANT</th>
-                            <th>DETALLE VASOS</th>
-                            <th>TOPPINGS</th>
+                            <th>V. VASOS</th>
+                            <th>V. TOPPINGS</th>
                             <th>SUBTOTAL</th>
                             <th>DESCUENTO</th>
                             <th>TOTAL</th>
                             <th>METODO</th>
                             <th>ATENDIÓ</th>
+                            <th>DETALLE</th>
                         </tr>
                     </thead>
                     <tbody id="body-reporte"></tbody>
@@ -121,7 +122,6 @@
         let CLIS = [], PEDS = [], GASTOS = [], BASES = {}, TOPS = [], VASOS = [], USERS = [], CARRITO = [];
 
         const fmt = (n) => new Intl.NumberFormat('de-DE').format(n || 0);
-        // Función para convertir a Nombre Propio (Ej: maria -> Maria)
         const aNombrePropio = (str) => str ? str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) : '-';
 
         const hoy = new Date().toISOString().split('T')[0];
@@ -147,7 +147,8 @@
                 tCost += parseInt(i.getAttribute('data-p')) || 0;
                 i.checked = false;
             });
-            CARRITO.push({ vaso: sV.value, pV: parseInt(sV.options[sV.selectedIndex].getAttribute('data-p')), toppings: tNoms, totalItem: parseInt(sV.options[sV.selectedIndex].getAttribute('data-p')) + tCost });
+            const vPre = parseInt(sV.options[sV.selectedIndex].getAttribute('data-p'));
+            CARRITO.push({ vaso: sV.value, pV: vPre, vT: tCost, toppings: tNoms, totalItem: vPre + tCost });
             dibujarCarrito();
         }
 
@@ -155,7 +156,7 @@
             const lista = document.getElementById('carrito-lista'); let sub = 0; lista.innerHTML = '';
             CARRITO.forEach((item, index) => {
                 sub += item.totalItem;
-                lista.innerHTML += `<div class="bg-slate-800 p-2 rounded-xl flex justify-between items-center text-[10px]"><span>${item.vaso} (${item.toppings.join(', ')})</span><button onclick="CARRITO.splice(${index},1); dibujarCarrito();" class="text-rose-500 px-2 font-black">✕</button></div>`;
+                lista.innerHTML += `<div class="bg-slate-800 p-2 rounded-xl flex justify-between items-center text-[10px]"><span>${item.vaso} + ${item.toppings.join(', ') || 'Natural'}</span><button onclick="CARRITO.splice(${index},1); dibujarCarrito();" class="text-rose-500 px-2 font-black">✕</button></div>`;
             });
             document.getElementById('total-carro').innerText = '$' + fmt(sub - (parseInt(document.getElementById('p-desc').value) || 0));
         }
@@ -163,8 +164,10 @@
         function guardarP() {
             const ate = document.getElementById('p-atendio').value, cN = document.getElementById('p-cli').value, fV = document.getElementById('p-fecha-venta').value;
             if(!ate || !cN || CARRITO.length === 0) return alert("Faltan datos");
-            const sub = CARRITO.reduce((a, b) => a + b.totalItem, 0), desc = parseInt(document.getElementById('p-desc').value) || 0;
-            const o = { cliente: cN, atendio: ate, entrega: document.getElementById('p-tipo-entrega').value, items: CARRITO, subtotal: sub, descuento: desc, total: sub - desc, cant: CARRITO.length, fecha: fV, nota: document.getElementById('p-nota').value, entregado: false, pagado: false, metodo: '' };
+            const sumVasos = CARRITO.reduce((a, b) => a + b.pV, 0);
+            const sumTops = CARRITO.reduce((a, b) => a + b.vT, 0);
+            const desc = parseInt(document.getElementById('p-desc').value) || 0;
+            const o = { cliente: cN, atendio: ate, entrega: document.getElementById('p-tipo-entrega').value, items: CARRITO, vVasos: sumVasos, vTops: sumTops, subtotal: sumVasos + sumTops, descuento: desc, total: (sumVasos + sumTops) - desc, cant: CARRITO.length, fecha: fV, nota: document.getElementById('p-nota').value, entregado: false, pagado: false, metodo: '' };
             db.ref('fresas_niza/pedidos').push(o).then(() => { CARRITO = []; cerrar(); });
         }
 
@@ -185,22 +188,19 @@
                 </div>`;
 
                 if(!busRep || p.cliente.toLowerCase().includes(busRep)) {
-                    // Detalle de vasos y toppings para el reporte
-                    const dVasos = p.items ? p.items.map(i => i.vaso).join(' | ') : 'Vaso';
-                    const dToppings = p.items ? p.items.map(i => (i.toppings.join(', ') || 'Natural')).join(' / ') : '-';
-                    
                     bR.innerHTML += `<tr>
                         <td>${aNombrePropio(p.cliente)}</td>
                         <td class="font-bold">${p.entrega.toUpperCase()}</td>
                         <td class="font-black ${p.entregado?'text-indigo-400':'text-rose-500'}">${p.entregado?'ENTREGADO':'PENDIENTE'}</td>
                         <td class="text-center">${p.cant || 1}</td>
-                        <td class="text-[7px] italic">${dVasos}</td>
-                        <td class="text-[7px] text-slate-400">${dToppings}</td>
+                        <td data-t="n">${p.vVasos || p.subtotal}</td>
+                        <td data-t="n">${p.vTops || 0}</td>
                         <td data-t="n">${p.subtotal}</td>
                         <td data-t="n" class="text-rose-400">${p.descuento}</td>
                         <td data-t="n" class="font-black text-emerald-400">${p.total}</td>
                         <td class="font-bold">${p.pagado ? p.metodo.toUpperCase() : 'DEBE'}</td>
                         <td>${aNombrePropio(p.atendio)}</td>
+                        <td class="text-[7px] italic">${p.items ? p.items.map(i => i.vaso + '(' + (i.toppings.join(',') || 'N') + ')').join(' | ') : '-'}</td>
                     </tr>`;
                 }
             });
@@ -213,17 +213,13 @@
         function exportarExcel() {
             const table = document.getElementById("tabla-reporte");
             const ws = XLSX.utils.table_to_sheet(table);
-            
-            // Aplicar estilo a la primera fila (Títulos)
             const range = XLSX.utils.decode_range(ws['!ref']);
             for (let C = range.s.c; C <= range.e.c; ++C) {
-                const address = XLSX.utils.encode_col(C) + "1";
-                if (!ws[address]) continue;
-                ws[address].v = ws[address].v.toString().toUpperCase();
+                const adr = XLSX.utils.encode_col(C) + "1";
+                if (ws[adr]) ws[adr].v = ws[adr].v.toString().toUpperCase();
             }
-
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Ventas");
+            XLSX.utils.book_append_sheet(wb, ws, "Auditoria");
             XLSX.writeFile(wb, `Reporte_Niza_${document.getElementById('fecha-app').value}.xlsx`);
         }
 
