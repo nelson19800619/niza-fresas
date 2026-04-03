@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NIZA - EDICIÓN HABILITADA V5.0</title>
+    <title>NIZA - CONTROL TOTAL V5.1</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,9 +12,12 @@
         .tap:active { transform: scale(0.96); opacity: 0.8; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background-color: #0f172a; color: white; font-family: system-ui, sans-serif; padding-bottom: 50px; }
+        .card-p { background: #1e293b; border-left: 6px solid #334155; margin-bottom: 12px; padding: 15px; border-radius: 20px; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; align-items: center; justify-content: center; padding: 15px; overflow-y: auto; }
-        input, select { color: white !important; background-color: #1e293b !important; outline: none; border: 1px solid #475569 !important; border-radius: 12px !important; }
-        .cli-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 20px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.1); }
+        input, select, textarea { color: white !important; background-color: #1e293b !important; outline: none; border: 1px solid #475569 !important; border-radius: 12px !important; }
+        th, td { border: 1px solid #475569; padding: 10px; text-align: left; font-size: 9px; }
+        th { background: #1e293b; color: #f8fafc; text-transform: uppercase; font-weight: 900; }
+        .cli-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 15px; margin-bottom: 5px; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
@@ -23,11 +26,26 @@
         <div class="flex justify-between items-center mb-4">
             <div class="flex flex-col">
                 <h1 class="font-black italic text-lg uppercase tracking-tighter text-rose-500">🍓 Delicias Niza</h1>
-                <span class="text-[8px] font-bold opacity-60 text-slate-400 uppercase">V5.0 - Edición de Clientes Activa</span>
+                <span class="text-[8px] font-bold opacity-60 text-slate-400 uppercase">V5.1 - Sistema Restaurado</span>
             </div>
             <div class="flex gap-1">
                 <button onclick="abrirModReporte()" class="bg-blue-600 p-2 rounded-xl text-[8px] font-black text-white uppercase tap px-3">📊 REPORTE</button>
-                <button onclick="abrirModConfig()" class="bg-slate-700 p-2 rounded-xl text-[8px] font-bold text-yellow-200 uppercase">⚙️ Config</button>
+                <button onclick="abrirModConfig()" class="bg-slate-700 p-2 rounded-xl text-[8px] font-bold text-yellow-200 uppercase tap">⚙️ Config</button>
+                <button onclick="abrirGastos()" class="bg-slate-700 p-2 rounded-xl text-[8px] font-bold text-rose-300 uppercase tap">💸 Gastos</button>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+            <div class="bg-slate-900 p-2 rounded-2xl text-center">
+                <p class="text-[7px] font-black text-blue-400 uppercase">Base</p>
+                <input type="number" id="base-caja" onchange="guardarBase()" class="bg-transparent text-center w-full font-black text-white text-sm border-none">
+            </div>
+            <div class="bg-slate-900 p-2 rounded-2xl text-center text-emerald-400">
+                <p class="text-[7px] font-black uppercase">Ventas</p>
+                <p id="total-ventas" class="text-sm font-black">$0</p>
+            </div>
+            <div class="bg-slate-900 p-2 rounded-2xl text-center text-indigo-400">
+                <p class="text-[7px] font-black uppercase">En Caja</p>
+                <p id="total-caja" class="text-sm font-black">$0</p>
             </div>
         </div>
     </header>
@@ -35,15 +53,15 @@
     <main class="p-4">
         <button onclick="abrirModPed()" class="w-full bg-rose-600 p-5 rounded-3xl font-black text-base tap uppercase mb-6 shadow-lg border-b-4 border-rose-900 text-white tracking-widest">🚀 Nueva Venta</button>
         <input type="date" id="fecha-app" onchange="cargarDatosDia()" class="w-full bg-slate-800 p-3 rounded-xl text-xs font-bold border-none mb-4">
-        <div id="lista-peds" class="space-y-4"></div>
+        <div id="lista-peds" class="space-y-4 mb-10"></div>
     </main>
 
     <div id="m-config" class="modal">
         <div class="bg-slate-900 w-full max-w-md p-6 rounded-[2.5rem] h-[90vh] flex flex-col border border-yellow-500/30">
-            <h2 id="titulo-config-cli" class="text-yellow-500 font-black mb-4 uppercase text-center text-sm italic">Registrar Cliente</h2>
+            <h2 id="titulo-config-cli" class="text-yellow-500 font-black mb-4 uppercase text-center text-sm italic text-white">Gestión de Clientes</h2>
             
             <input type="hidden" id="edit-id-cli">
-            <div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700 mb-6">
+            <div class="bg-slate-800/50 p-4 rounded-3xl border border-slate-700 mb-4">
                 <div class="grid grid-cols-2 gap-2 mb-2">
                     <input type="text" id="c-n" placeholder="Nombre" class="p-2 text-[10px] uppercase">
                     <input type="number" id="c-t" placeholder="Teléfono" class="p-2 text-[10px]">
@@ -58,105 +76,207 @@
                 </div>
             </div>
 
-            <p class="text-[9px] font-black text-slate-500 mb-2 uppercase">Lista de Clientes (Click en ✏️ para editar):</p>
             <div id="l-cli" class="overflow-y-auto flex-1 space-y-1 pr-2"></div>
             
+            <hr class="my-4 border-slate-700">
+            <p class="text-[8px] font-bold text-yellow-500 uppercase mb-2">Personal</p>
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="u-n" placeholder="Nuevo Atendedor" class="flex-1 p-2 text-[10px] uppercase">
+                <button onclick="guardarU()" class="bg-yellow-600 px-4 rounded-xl font-black text-[10px]">AÑADIR</button>
+            </div>
+            <div id="l-users" class="max-h-24 overflow-y-auto"></div>
+
             <button onclick="cerrar()" class="mt-4 bg-slate-800 py-3 rounded-2xl text-slate-400 font-bold uppercase text-[10px]">Cerrar</button>
         </div>
     </div>
 
-    <div id="m-reporte" class="modal">...</div>
-    <div id="m-ped" class="modal">...</div>
+    <div id="m-reporte" class="modal">
+        <div class="bg-slate-900 w-full max-w-7xl p-6 rounded-[2.5rem] h-[90vh] flex flex-col border border-blue-500/30">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-blue-400 font-black uppercase italic text-sm">Reporte de Operación</h2>
+                <button onclick="exportarExcel()" class="bg-emerald-600 text-[10px] font-black px-4 py-2 rounded-xl uppercase tap">📥 Excel</button>
+            </div>
+            <input type="text" id="bus-rep" oninput="dibujarTodo()" placeholder="🔍 Filtrar..." class="bg-slate-800 p-3 rounded-xl text-xs w-full mb-4">
+            <div class="overflow-auto flex-1 rounded-2xl border border-slate-700 bg-slate-800/20">
+                <table id="tabla-reporte" class="w-full text-white min-w-[1300px]">
+                    <thead>
+                        <tr>
+                            <th>CLIENTE</th><th>ENTREGA</th><th>ESTADO</th><th>CANT</th><th>V. VASOS</th><th>V. TOPPINGS</th><th>SUBTOTAL</th><th>DESCUENTO</th><th>TOTAL</th><th>METODO</th><th>ATENDIÓ</th><th>DETALLE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="body-reporte"></tbody>
+                </table>
+            </div>
+            <button onclick="cerrar()" class="mt-6 text-slate-500 font-black uppercase text-[10px]">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="m-ped" class="modal">
+        <div class="bg-slate-900 w-full max-w-md p-6 rounded-[2.5rem] border border-rose-500/30 flex flex-col max-h-[95vh]">
+            <h2 class="text-rose-500 font-black mb-4 text-center uppercase text-sm italic">Nueva Venta</h2>
+            <div class="space-y-3 overflow-y-auto flex-1 pr-1">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="date" id="p-fecha-venta" class="p-3 rounded-xl text-[10px] font-bold">
+                    <select id="p-tipo-entrega" class="p-3 rounded-xl text-[10px] font-bold">
+                        <option value="Domicilio">🛵 Domicilio</option>
+                        <option value="Recoge">🚶 Recoge</option>
+                    </select>
+                </div>
+                <div class="bg-slate-800/50 p-3 rounded-2xl border border-slate-700">
+                    <input type="text" id="filtro-cliente" oninput="actualizarSelects()" placeholder="🔍 Buscar Cliente..." class="w-full bg-transparent border-none text-xs mb-1 text-emerald-400 font-bold uppercase">
+                    <select id="p-cli" class="w-full p-3 rounded-xl font-bold text-[10px] uppercase border-t border-slate-700"></select>
+                </div>
+                <select id="p-atendio" class="w-full p-3 rounded-xl font-black text-yellow-500 text-xs uppercase"></select>
+                <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700">
+                    <select id="p-v" class="w-full p-3 rounded-xl font-bold text-xs mb-3 uppercase" onchange="dibujarToppings()"></select>
+                    <div id="grid-toppings" class="grid grid-cols-2 gap-2 mb-4"></div>
+                    <button type="button" onclick="agregarAlCarrito()" class="w-full bg-blue-600 py-4 rounded-xl font-black text-[10px] uppercase shadow-lg">✅ Añadir Vaso</button>
+                </div>
+                <div id="carrito-lista" class="space-y-2"></div>
+                <input type="number" id="p-desc" value="0" oninput="dibujarCarrito()" placeholder="Descuento $" class="w-full p-3 rounded-xl font-black text-sm text-rose-400">
+                <textarea id="p-nota" placeholder="Notas de entrega..." class="w-full p-3 rounded-xl text-xs h-16"></textarea>
+            </div>
+            <div class="pt-4 border-t border-slate-700 mt-4 text-center">
+                <div class="flex justify-between px-2 mb-2"><span class="text-slate-400 text-[10px] font-bold uppercase">A pagar:</span><span id="total-carro" class="text-xl font-black text-emerald-400">$0</span></div>
+                <button onclick="guardarP()" class="w-full bg-emerald-600 py-4 rounded-2xl font-black tap uppercase text-xs">Guardar Venta</button>
+                <button onclick="cerrar()" class="w-full text-slate-500 text-[10px] py-2 uppercase">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="m-pago" class="modal"><div class="bg-slate-900 w-full max-w-xs p-8 rounded-[3rem] text-center"><h3 class="text-emerald-400 font-black mb-8 uppercase text-xs">Registrar Pago</h3><input type="hidden" id="pago-id"><div class="space-y-4"><button onclick="pagoFin('Efectivo')" class="w-full bg-emerald-600 p-5 rounded-2xl font-black text-xs uppercase">💰 Efectivo</button><button onclick="pagoFin('Transferencia')" class="w-full bg-indigo-600 p-5 rounded-2xl font-black text-xs uppercase">📱 Transferencia</button><button onclick="cerrar()" class="w-full text-slate-500 font-bold mt-4 text-[10px]">Cerrar</button></div></div></div>
+    <div id="m-gastos" class="modal"><div class="bg-slate-900 w-full max-w-md p-6 rounded-[2.5rem] h-[80vh] flex flex-col"><h2 class="text-rose-400 font-black mb-4 uppercase text-center text-xs italic">Gastos del Día</h2><div class="space-y-2 mb-4 bg-slate-800 p-4 rounded-2xl"><input type="text" id="g-desc" placeholder="Descripción" class="w-full p-3 text-xs"><input type="number" id="g-val" placeholder="Valor $" class="w-full p-3 text-xs font-black"><button onclick="guardarGasto()" class="w-full bg-rose-600 py-3 rounded-xl font-black text-xs uppercase">Registrar Gasto</button></div><div id="l-gastos" class="overflow-y-auto flex-1"></div><button onclick="cerrar()" class="mt-4 text-slate-500 text-[10px] uppercase font-bold">Cerrar</button></div></div>
 
     <script>
         const config = { apiKey: "AIzaSyBZ93gaPrEkHY5gsNgkBxLEH_GHko_ijFs", authDomain: "delicias--niza.firebaseapp.com", databaseURL: "https://delicias--niza-default-rtdb.firebaseio.com", projectId: "delicias--niza" };
         firebase.initializeApp(config);
         const db = firebase.database();
-        let CLIS = [], PEDS = [], USERS = [], CARRITO = [];
+        let CLIS=[], PEDS=[], GASTOS=[], BASES={}, TOPS=[], VASOS=[], USERS=[], CARRITO=[];
 
-        db.ref('fresas_niza/clientes').on('value', s => { 
-            CLIS = s.val() ? Object.entries(s.val()).map(([id, d]) => ({id, ...d})) : []; 
-            dibujarConfigCLI(); 
-        });
+        const fmt = (n) => new Intl.NumberFormat('de-DE').format(n || 0);
+        const aNombrePropio = (str) => str ? str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) : '-';
 
-        // --- FUNCIONES DE EDICIÓN ---
-        
+        const hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('fecha-app').value = hoy;
+
+        db.ref('fresas_niza/clientes').on('value', s => { CLIS = s.val() ? Object.entries(s.val()).map(([id, d]) => ({id, ...d})) : []; actualizarSelects(); dibujarConfigCLI(); });
+        db.ref('fresas_niza/pedidos').on('value', s => { PEDS = s.val() ? Object.entries(s.val()).map(([id, d]) => ({id, ...d})) : []; dibujarTodo(); });
+        db.ref('fresas_niza/gastos').on('value', s => { GASTOS = s.val() ? Object.entries(s.val()).map(([id, d]) => ({id, ...d})) : []; dibujarTodo(); });
+        db.ref('fresas_niza/bases').on('value', s => { BASES = s.val() || {}; cargarDatosDia(); });
+        db.ref('fresas_niza/toppings').on('value', s => { TOPS = s.val() ? Object.entries(s.val()).map(([id, d]) => ({id, ...d})) : []; dibujarToppings(); });
+        db.ref('fresas_niza/vasos').on('value', s => { VASOS = s.val() ? Object.entries(s.val()).map(([id, d]) => ({id, ...d})) : []; dibujarVasos(); });
+        db.ref('fresas_niza/personal').on('value', s => { USERS = s.val() ? Object.entries(s.val()).map(([id, d]) => ({id, ...d})) : []; dibujarConfigUSERS(); actualizarSelects(); });
+
+        function cargarDatosDia() { document.getElementById('base-caja').value = BASES[document.getElementById('fecha-app').value] || 0; dibujarTodo(); }
+        function guardarBase() { db.ref('fresas_niza/bases/' + document.getElementById('fecha-app').value).set(parseInt(document.getElementById('base-caja').value) || 0); }
+
         function prepararEdicion(id) {
-            const c = CLIS.find(item => item.id === id);
-            if(!c) return;
-
-            // Llenar campos
+            const c = CLIS.find(i => i.id === id); if(!c) return;
             document.getElementById('edit-id-cli').value = c.id;
             document.getElementById('c-n').value = c.nombre;
             document.getElementById('c-t').value = c.tel || '';
             document.getElementById('c-b').value = c.barrio || '';
             document.getElementById('c-d').value = c.dir || '';
-
-            // Cambiar UI
             document.getElementById('titulo-config-cli').innerText = "Editando Cliente";
-            document.getElementById('btn-guardar-cli').innerText = "Actualizar Datos";
-            document.getElementById('btn-guardar-cli').classList.replace('bg-blue-600', 'bg-emerald-600');
+            document.getElementById('btn-guardar-cli').innerText = "Actualizar";
             document.getElementById('btn-cancelar-edit').classList.remove('hidden');
         }
 
         function limpiarFormCli() {
             document.getElementById('edit-id-cli').value = '';
-            document.getElementById('c-n').value = '';
-            document.getElementById('c-t').value = '';
-            document.getElementById('c-b').value = '';
-            document.getElementById('c-d').value = '';
-            
-            document.getElementById('titulo-config-cli').innerText = "Registrar Cliente";
+            document.getElementById('c-n').value = ''; document.getElementById('c-t').value = '';
+            document.getElementById('c-b').value = ''; document.getElementById('c-d').value = '';
+            document.getElementById('titulo-config-cli').innerText = "Gestión de Clientes";
             document.getElementById('btn-guardar-cli').innerText = "Guardar Cliente";
-            document.getElementById('btn-guardar-cli').classList.replace('bg-emerald-600', 'bg-blue-600');
             document.getElementById('btn-cancelar-edit').classList.add('hidden');
         }
 
         function guardarC(){
-            const id = document.getElementById('edit-id-cli').value;
-            const n = document.getElementById('c-n').value.toUpperCase();
-            const t = document.getElementById('c-t').value;
-            const b = document.getElementById('c-b').value.toUpperCase();
-            const d = document.getElementById('c-d').value.toUpperCase();
-
+            const id=document.getElementById('edit-id-cli').value, n=document.getElementById('c-n').value.toUpperCase(), t=document.getElementById('c-t').value, b=document.getElementById('c-b').value.toUpperCase(), d=document.getElementById('c-d').value.toUpperCase();
             if(!n) return alert("Nombre obligatorio");
+            const data = { nombre:n, tel:t, barrio:b, dir:d };
+            if(id) db.ref('fresas_niza/clientes/'+id).update(data).then(()=>limpiarFormCli());
+            else db.ref('fresas_niza/clientes').push(data).then(()=>limpiarFormCli());
+        }
 
-            const datos = { nombre: n, tel: t, barrio: b, dir: d };
+        function agregarAlCarrito() {
+            const sV = document.getElementById('p-v'); if(!sV.value) return alert("Elige un vaso");
+            let tNoms = [], tCost = 0;
+            document.querySelectorAll('#grid-toppings input:checked').forEach(i => { tNoms.push(i.getAttribute('data-n')); tCost += parseInt(i.getAttribute('data-p')); i.checked = false; });
+            const vPre = parseInt(sV.options[sV.selectedIndex].getAttribute('data-p'));
+            CARRITO.push({ vaso: sV.value, pV: vPre, vT: tCost, toppings: tNoms, totalItem: vPre + tCost });
+            dibujarCarrito();
+        }
 
-            if(id) {
-                // ACTUALIZAR
-                db.ref('fresas_niza/clientes/' + id).update(datos).then(() => {
-                    limpiarFormCli();
-                });
-            } else {
-                // CREAR NUEVO
-                db.ref('fresas_niza/clientes').push(datos).then(() => {
-                    limpiarFormCli();
-                });
-            }
+        function dibujarCarrito() {
+            const lista = document.getElementById('carrito-lista'); let sub = 0; lista.innerHTML = '';
+            CARRITO.forEach((item, index) => { sub += item.totalItem; lista.innerHTML += `<div class="bg-slate-800 p-2 rounded-xl flex justify-between items-center text-[10px]"><span>${item.vaso} + ${item.toppings.join(', ') || 'Nat'}</span><button onclick="CARRITO.splice(${index},1); dibujarCarrito();" class="text-rose-500 font-black">✕</button></div>`; });
+            document.getElementById('total-carro').innerText = '$' + fmt(sub - (parseInt(document.getElementById('p-desc').value) || 0));
+        }
+
+        function guardarP() {
+            const ate = document.getElementById('p-atendio').value, cN = document.getElementById('p-cli').value, fV = document.getElementById('p-fecha-venta').value;
+            if(!ate || !cN || CARRITO.length === 0) return alert("Faltan datos");
+            const sumVasos = CARRITO.reduce((a, b) => a + b.pV, 0), sumTops = CARRITO.reduce((a, b) => a + b.vT, 0), desc = parseInt(document.getElementById('p-desc').value) || 0;
+            const o = { cliente: cN, atendio: ate, entrega: document.getElementById('p-tipo-entrega').value, items: CARRITO, vVasos: sumVasos, vTops: sumTops, subtotal: sumVasos + sumTops, descuento: desc, total: (sumVasos + sumTops) - desc, cant: CARRITO.length, fecha: fV, nota: document.getElementById('p-nota').value, entregado: false, pagado: false, metodo: '' };
+            db.ref('fresas_niza/pedidos').push(o).then(() => { CARRITO = []; cerrar(); });
+        }
+
+        function dibujarTodo() {
+            const fS = document.getElementById('fecha-app').value, vP = document.getElementById('lista-peds'), bR = document.getElementById('body-reporte'), vG = document.getElementById('l-gastos'), busRep = document.getElementById('bus-rep').value.toLowerCase();
+            vP.innerHTML = ''; bR.innerHTML = ''; vG.innerHTML = '';
+            let vHoy=0, gHoy=0;
+
+            PEDS.filter(p => p.fecha == fS).reverse().forEach(p => {
+                if(p.pagado) vHoy += Number(p.total);
+                vP.innerHTML += `<div class="card-p" style="border-left-color:${p.pagado ? '#10b981' : (p.entregado ? '#6366f1' : '#f43f5e')}">
+                    <div class="flex justify-between mb-2"><div><p class="font-black text-xs uppercase">${p.cliente}</p><p class="text-[8px] font-bold text-slate-500">${p.entrega} | ${p.atendio}</p></div><p class="font-black text-lg">$${fmt(p.total)}</p></div>
+                    <div class="flex gap-2">
+                        <button onclick="db.ref('fresas_niza/pedidos/${p.id}').update({entregado:!${p.entregado}})" class="flex-1 py-3 rounded-xl text-[8px] font-black ${p.entregado?'bg-indigo-900/40 text-indigo-400':'bg-slate-700 text-slate-400'}">${p.entregado?'LISTO':'🚚 DESPACHAR'}</button>
+                        ${!p.pagado ? `<button onclick="abPago('${p.id}')" class="bg-emerald-600 px-6 rounded-xl text-[8px] font-black uppercase">Cobrar</button>` : `<button onclick="confirm('¿Borrar?')&&db.ref('fresas_niza/pedidos/${p.id}').remove()" class="bg-slate-800 px-4 rounded-xl">✕</button>`}
+                    </div>
+                </div>`;
+                if(!busRep || p.cliente.toLowerCase().includes(busRep)) {
+                    bR.innerHTML += `<tr><td>${aNombrePropio(p.cliente)}</td><td>${p.entrega}</td><td class="${p.entregado?'text-indigo-400':'text-rose-500'}">${p.entregado?'LISTO':'PEND'}</td><td>${p.cant}</td><td data-t="n">${p.vVasos}</td><td data-t="n">${p.vTops}</td><td data-t="n">${p.subtotal}</td><td data-t="n">${p.descuento}</td><td data-t="n" class="font-black">${p.total}</td><td>${p.pagado?p.metodo:'DEBE'}</td><td>${aNombrePropio(p.atendio)}</td><td class="text-[7px]">${p.items ? p.items.map(i => i.vaso).join('|') : '-'}</td></tr>`;
+                }
+            });
+            GASTOS.filter(g => g.fecha == fS).forEach(g => { gHoy += Number(g.val); vG.innerHTML += `<div class="text-[10px] flex justify-between p-1 bg-slate-800 rounded mb-1 px-2"><span>${g.desc}</span><span class="text-rose-400">-$${fmt(g.val)}</span></div>`; });
+            document.getElementById('total-ventas').innerText = '$' + fmt(vHoy);
+            document.getElementById('total-caja').innerText = '$' + fmt( (Number(BASES[fS])||0) + vHoy - gHoy );
+        }
+
+        function exportarExcel() {
+            const table = document.getElementById("tabla-reporte"), ws = XLSX.utils.table_to_sheet(table);
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let C = range.s.c; C <= range.e.c; ++C) { const adr = XLSX.utils.encode_col(C) + "1"; if (ws[adr]) ws[adr].v = ws[adr].v.toString().toUpperCase(); }
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Auditoria"); XLSX.writeFile(wb, `Reporte_Niza_${document.getElementById('fecha-app').value}.xlsx`);
+        }
+
+        function actualizarSelects(){ 
+            const s=document.getElementById('p-cli'), fil=document.getElementById('filtro-cliente').value.toLowerCase(); s.innerHTML='<option value="">-- CLIENTE --</option>'; 
+            CLIS.filter(c => !fil || c.nombre.toLowerCase().includes(fil)).sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(c=>{ s.innerHTML+=`<option value="${c.nombre}">${c.nombre} (${c.barrio || 'S/B'})</option>`; });
+            const at=document.getElementById('p-atendio'); at.innerHTML='<option value="">-- ATENDIÓ --</option>'; USERS.forEach(u=>{ at.innerHTML+=`<option value="${u.nombre}">${u.nombre}</option>`; });
         }
 
         function dibujarConfigCLI() {
             const l = document.getElementById('l-cli'); l.innerHTML = '';
             CLIS.sort((a,b)=>a.nombre.localeCompare(b.nombre)).forEach(c => {
-                l.innerHTML += `
-                <div class="cli-item flex justify-between items-center">
-                    <div class="flex flex-col">
-                        <span class="font-black text-[10px] text-white uppercase">${c.nombre}</span>
-                        <span class="text-[8px] text-slate-400">${c.tel || ''} | ${c.barrio || ''}</span>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="prepararEdicion('${c.id}')" class="bg-slate-700 p-2 rounded-lg text-yellow-400">✏️</button>
-                        <button onclick="confirm('¿Borrar cliente?') && db.ref('fresas_niza/clientes/${c.id}').remove()" class="bg-slate-700 p-2 rounded-lg text-rose-500">✕</button>
-                    </div>
-                </div>`;
+                l.innerHTML += `<div class="cli-item flex justify-between items-center"><div class="flex flex-col"><span class="font-black text-[10px] text-white uppercase">${c.nombre}</span><span class="text-[8px] text-slate-400">${c.tel||''} | ${c.barrio||''}</span></div><div class="flex gap-2"><button onclick="prepararEdicion('${c.id}')" class="text-yellow-400 p-1">✏️</button><button onclick="db.ref('fresas_niza/clientes/${c.id}').remove()" class="text-rose-500 p-1">✕</button></div></div>`;
             });
         }
 
-        // --- EL RESTO DE LA LÓGICA (VENTAS, REPORTE, ETC) SIGUE IGUAL QUE LA V4.9 ---
+        function abPago(id){ document.getElementById('pago-id').value=id; document.getElementById('m-pago').style.display='flex'; }
+        function pagoFin(m){ db.ref('fresas_niza/pedidos/'+document.getElementById('pago-id').value).update({pagado:true, metodo:m, entregado:true}).then(()=>cerrar()); }
         function cerrar(){ document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); }
+        function abrirModReporte() { document.getElementById('m-reporte').style.display='flex'; }
+        function abrirModPed(){ CARRITO=[]; document.getElementById('p-fecha-venta').value=document.getElementById('fecha-app').value; document.getElementById('p-desc').value=0; document.getElementById('p-nota').value=''; document.getElementById('filtro-cliente').value=''; actualizarSelects(); dibujarCarrito(); document.getElementById('m-ped').style.display='flex'; }
         function abrirModConfig(){ limpiarFormCli(); document.getElementById('m-config').style.display='flex'; }
-        // ... (resto de funciones)
+        function abrirGastos(){ document.getElementById('m-gastos').style.display='flex'; }
+        function dibujarVasos(){ const sel=document.getElementById('p-v'); sel.innerHTML='<option value="">-- VASO --</option>'; VASOS.forEach(v=>{ sel.innerHTML+=`<option value="${v.nombre}" data-p="${v.precio}">${v.nombre} ($${fmt(v.precio)})</option>`; }); }
+        function dibujarToppings(){ const g=document.getElementById('grid-toppings'); g.innerHTML=''; TOPS.forEach(t=>{ g.innerHTML+=`<label class="flex items-center gap-1 bg-slate-700 p-1 rounded-lg text-[8px] uppercase"><input type="checkbox" data-p="${t.precio}" data-n="${t.nombre}"> ${t.nombre}</label>`; }); }
+        function dibujarConfigUSERS() { const l=document.getElementById('l-users'); l.innerHTML=''; USERS.forEach(u=>{ l.innerHTML+=`<div class="flex justify-between p-1 text-[9px] bg-slate-800 rounded mb-1 px-2 items-center"><span>${u.nombre}</span><button onclick="db.ref('fresas_niza/personal/${u.id}').remove()" class="text-rose-500">✕</button></div>`; }); }
+        function guardarU(){ const n=document.getElementById('u-n').value; if(n) db.ref('fresas_niza/personal').push({nombre:n.toUpperCase()}).then(()=>document.getElementById('u-n').value=''); }
+        function guardarGasto(){ const d=document.getElementById('g-desc').value,v=parseInt(document.getElementById('g-val').value),f=document.getElementById('fecha-app').value; if(d&&v) db.ref('fresas_niza/gastos').push({desc:d,val:v,fecha:f}).then(()=>{document.getElementById('g-desc').value='';document.getElementById('g-val').value='';}); }
     </script>
 </body>
 </html>
