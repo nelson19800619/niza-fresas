@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NIZA V9.4</title>
+    <title>NIZA V9.5</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,7 +21,7 @@
 <body>
     <header class="bg-slate-800 p-4 sticky top-0 z-40 rounded-b-[2.5rem] shadow-2xl border-b border-slate-700">
         <div class="flex justify-between items-center mb-4">
-            <h1 class="text-rose-500 font-black italic text-lg uppercase">NIZA V9.4</h1>
+            <h1 class="text-rose-500 font-black italic text-lg uppercase">NIZA V9.5</h1>
             <div class="flex gap-1">
                 <button onclick="abrir('m-reporte')" class="bg-blue-600 p-2 rounded-xl text-[8px] font-black uppercase">📊 Reporte</button>
                 <button onclick="abrir('m-gastos')" class="bg-rose-600 p-2 rounded-xl text-[8px] font-black uppercase">💸 Gastos</button>
@@ -50,7 +50,7 @@
     <div id="m-reporte" class="modal">
         <div class="bg-slate-900 w-full p-4 rounded-[2rem] h-[95vh] flex flex-col mx-auto">
             <div class="flex justify-between items-center mb-4"><h2 class="text-blue-400 font-black uppercase text-[10px]">Cierre Detallado</h2><button onclick="exportarExcel()" class="bg-emerald-600 text-[8px] font-black px-4 py-2 rounded-lg uppercase">Excel</button></div>
-            <div class="overflow-auto flex-1 bg-slate-950 rounded-xl border border-slate-800"><table id="tabla-reporte" class="w-full"><thead><tr class="bg-slate-800 text-slate-400 uppercase"><th>CLIENTE</th><th>ATENDIÓ</th><th>VASO</th><th>$ VASO</th><th>TOPPINGS</th><th>$ TOPS</th><th>CANT</th><th>DESC</th><th>TOTAL</th><th>ENTREGA</th><th>PAGO</th></tr></thead><tbody id="tb-reporte"></tbody></table></div>
+            <div class="overflow-auto flex-1 bg-slate-950 rounded-xl border border-slate-800"><table id="tabla-reporte" class="w-full"><thead><tr class="bg-slate-800 text-slate-400 uppercase"><th>CLIENTE</th><th>ATENDIÓ</th><th>VASO</th><th>$ VASO</th><th>TOPPINGS</th><th>$ TOPS</th><th>CANT</th><th>DESC TOTAL</th><th>TOTAL PEDIDO</th><th>ENTREGA</th><th>PAGO</th></tr></thead><tbody id="tb-reporte"></tbody></table></div>
             <button onclick="cerrar()" class="mt-4 text-slate-500 text-[10px] uppercase font-bold text-center w-full">Regresar</button>
         </div>
     </div>
@@ -124,8 +124,17 @@
                 if(p.pagado) vT += parseInt(p.total);
                 totalV += parseInt(p.cant_vasos || 0);
                 if(p.entregado) entV += parseInt(p.cant_vasos || 0);
+                
                 lP.innerHTML += `<div class="card-p" style="border-color:${p.pagado?'#10b981':'#f43f5e'}"><div class="flex justify-between"><div><b class="text-sm uppercase">${p.cliente}</b><br><small class="text-yellow-500 font-bold text-[9px] uppercase">${p.entrega}</small></div><b class="text-emerald-400 text-lg">$${parseInt(p.total).toLocaleString()}</b></div><div class="text-[9px] text-slate-500 mt-2 italic">${p.resumen_txt}</div><div class="flex gap-2 mt-4"><button onclick="db.ref('fresas_niza/pedidos/${p.id}').update({entregado:!${p.entregado}})" class="flex-1 ${p.entregado?'bg-indigo-900/40 text-indigo-400':'bg-slate-700'} py-2 rounded-xl text-[9px] font-black uppercase">${p.entregado?'ENTREGADO ✅':'ENTREGAR'}</button>${!p.pagado ? `<button onclick="abPago('${p.id}')" class="flex-1 bg-emerald-600 py-2 rounded-xl font-black text-[9px] uppercase">COBRAR</button>` : `<button onclick="confirm('¿Borrar?') && db.ref('fresas_niza/pedidos/${p.id}').remove()" class="bg-slate-800 px-4 rounded-xl text-rose-500 text-[10px]">✕</button>`}</div></div>`;
-                if(p.carrito_json) p.carrito_json.forEach(i => { tR.innerHTML += `<tr><td>${p.cliente}</td><td>${p.atendio}</td><td>${i.nombre}</td><td>$${i.pVaso}</td><td>${i.tops}</td><td>$${i.pTops}</td><td>${i.cant}</td><td>$${p.descuento}</td><td>$${p.total}</td><td>${p.entrega}</td><td>${p.metodo_pago||'--'}</td></tr>`; });
+                
+                if(p.carrito_json) {
+                    p.carrito_json.forEach((i, index) => {
+                        // El descuento y total solo se muestran en la primera fila del pedido para no duplicar sumas en Excel
+                        let descCell = index === 0 ? p.descuento : 0;
+                        let totalCell = index === 0 ? p.total : 0;
+                        tR.innerHTML += `<tr><td>${p.cliente}</td><td>${p.atendio}</td><td>${i.nombre}</td><td>${i.pVaso}</td><td>${i.tops}</td><td>${i.pTops}</td><td>${i.cant}</td><td>${descCell}</td><td>${totalCell}</td><td>${p.entrega}</td><td>${p.metodo_pago||'--'}</td></tr>`;
+                    });
+                }
             });
 
             GASTOS.filter(g => g.fecha == f).forEach(g => { gT += parseInt(g.val); lG.innerHTML += `<div class="flex justify-between bg-slate-800 p-2 rounded-lg mb-1 text-xs"><span>${g.desc}</span><b class="text-rose-400">-$${parseInt(g.val).toLocaleString()}</b><button onclick="db.ref('fresas_niza/gastos/${g.id}').remove()">✕</button></div>`; });
