@@ -15,10 +15,10 @@
         input, select { background-color: #1e293b !important; border: 1px solid #475569 !important; border-radius: 12px !important; color: white !important; padding: 10px; font-size: 12px; }
         .card-p { background: #1e293b; border-left: 10px solid #334155; border-radius: 25px; padding: 15px; margin-bottom: 10px; }
         th, td { border: 1px solid #334155; padding: 8px; text-align: left; font-size: 9px; min-width: 80px; white-space: nowrap; }
+        .check-item { display: flex; align-items: center; gap: 8px; background: #1e293b; padding: 8px; border-radius: 10px; font-size: 10px; border: 1px solid #475569; }
     </style>
 </head>
 <body>
-
     <header class="bg-slate-800 p-4 sticky top-0 z-40 rounded-b-[2.5rem] shadow-2xl border-b border-slate-700">
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-rose-500 font-black italic text-lg uppercase">NIZA V9.3</h1>
@@ -28,18 +28,16 @@
                 <button onclick="abrir('m-config')" class="bg-slate-700 p-2 rounded-xl text-[8px] font-black text-yellow-400 uppercase">⚙️ Ajustes</button>
             </div>
         </div>
-        
         <div class="grid grid-cols-4 gap-1 text-center mb-4">
-            <div class="bg-slate-900 p-2 rounded-xl border border-blue-500/20"><p class="text-[6px] text-blue-400 uppercase font-black">Base</p><input type="number" id="base-val" oninput="saveBase()" class="bg-transparent text-center w-full p-0 font-bold text-[10px] !bg-transparent border-none"></div>
+            <div class="bg-slate-900 p-2 rounded-xl border border-blue-500/20"><p class="text-[6px] text-blue-400 uppercase font-black">Base</p><input type="number" id="base-val" oninput="saveBase()" class="bg-transparent text-center w-full p-0 font-bold text-[10px] border-none"></div>
             <div class="bg-slate-900 p-2 rounded-xl border border-emerald-500/20"><p class="text-[6px] text-emerald-400 uppercase font-black">Ventas</p><p id="dash-v" class="text-[10px] font-bold text-white">$0</p></div>
             <div class="bg-slate-900 p-2 rounded-xl border border-rose-500/20"><p class="text-[6px] text-rose-400 uppercase font-black">Gastos</p><p id="dash-g" class="text-[10px] font-bold text-white">$0</p></div>
             <div class="bg-slate-900 p-2 rounded-xl border border-indigo-500/30"><p class="text-[6px] text-indigo-400 uppercase font-black">Caja</p><p id="dash-c" class="text-[10px] font-bold text-white">$0</p></div>
         </div>
-
-        <div class="grid grid-cols-3 gap-2">
-            <div class="bg-slate-700/30 p-2 rounded-xl text-center"><p class="text-[7px] text-slate-400 uppercase font-black">Vasos</p><p id="cnt-t" class="text-lg font-black text-white">0</p></div>
-            <div class="bg-emerald-500/10 p-2 rounded-xl text-center border border-emerald-500/20"><p class="text-[7px] text-emerald-400 uppercase font-black">Entregado</p><p id="cnt-e" class="text-lg font-black text-emerald-500">0</p></div>
-            <div class="bg-rose-500/10 p-2 rounded-xl text-center border border-rose-500/20"><p class="text-[7px] text-rose-400 uppercase font-black">Pendiente</p><p id="cnt-f" class="text-lg font-black text-rose-500">0</p></div>
+        <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="bg-slate-700/30 p-2 rounded-xl"><p class="text-[7px] text-slate-400 uppercase font-black">Vasos</p><p id="cnt-t" class="text-lg font-black">0</p></div>
+            <div class="bg-emerald-500/10 p-2 rounded-xl border border-emerald-500/20"><p class="text-[7px] text-emerald-400 uppercase font-black">Entregado</p><p id="cnt-e" class="text-lg font-black text-emerald-500">0</p></div>
+            <div class="bg-rose-500/10 p-2 rounded-xl border border-rose-500/20"><p class="text-[7px] text-rose-400 uppercase font-black">Pendiente</p><p id="cnt-f" class="text-lg font-black text-rose-500">0</p></div>
         </div>
     </header>
 
@@ -50,63 +48,31 @@
     </main>
 
     <div id="m-reporte" class="modal">
-        <div class="bg-slate-900 w-full max-w-full p-4 rounded-[2rem] h-[95vh] flex flex-col">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-blue-400 font-black uppercase text-[10px]">Cierre Detallado</h2>
-                <button onclick="exportarExcel()" class="bg-emerald-600 text-[8px] font-black px-4 py-2 rounded-lg uppercase">Excel</button>
-            </div>
-            <div class="overflow-auto flex-1 bg-slate-950 rounded-xl border border-slate-800">
-                <table id="tabla-reporte" class="w-full">
-                    <thead>
-                        <tr class="bg-slate-800 text-slate-400 uppercase">
-                            <th>CLIENTE</th><th>ATENDIÓ</th><th>VASO</th><th>$ VASO</th><th>TOPPINGS</th><th>$ TOPS</th><th>CANT</th><th>DESC</th><th>TOTAL FINAL</th><th>ENTREGA</th><th>PAGO</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tb-reporte"></tbody>
-                </table>
-            </div>
-            <button onclick="cerrar()" class="mt-4 text-slate-500 text-[10px] uppercase font-bold text-center">Regresar</button>
+        <div class="bg-slate-900 w-full p-4 rounded-[2rem] h-[95vh] flex flex-col mx-auto">
+            <div class="flex justify-between items-center mb-4"><h2 class="text-blue-400 font-black uppercase text-[10px]">Cierre Detallado</h2><button onclick="exportarExcel()" class="bg-emerald-600 text-[8px] font-black px-4 py-2 rounded-lg uppercase">Excel</button></div>
+            <div class="overflow-auto flex-1 bg-slate-950 rounded-xl border border-slate-800"><table id="tabla-reporte" class="w-full"><thead><tr class="bg-slate-800 text-slate-400 uppercase"><th>CLIENTE</th><th>ATENDIÓ</th><th>VASO</th><th>$ VASO</th><th>TOPPINGS</th><th>$ TOPS</th><th>CANT</th><th>DESC</th><th>TOTAL</th><th>ENTREGA</th><th>PAGO</th></tr></thead><tbody id="tb-reporte"></tbody></table></div>
+            <button onclick="cerrar()" class="mt-4 text-slate-500 text-[10px] uppercase font-bold text-center w-full">Regresar</button>
         </div>
     </div>
 
     <div id="m-gastos" class="modal">
         <div class="bg-slate-900 w-full max-w-md p-6 rounded-[2rem] mx-auto border border-rose-500/20">
             <h2 class="text-rose-400 font-black text-center mb-4 uppercase">Gastos</h2>
-            <div class="space-y-2 mb-4">
-                <input id="g-desc" placeholder="Descripción">
-                <input id="g-val" type="number" placeholder="Valor $">
-                <button onclick="addGasto()" class="w-full bg-rose-600 py-4 rounded-xl font-bold uppercase">Guardar</button>
-            </div>
+            <div class="space-y-2 mb-4"><input id="g-desc" class="w-full" placeholder="Descripción"><input id="g-val" type="number" class="w-full" placeholder="Valor $"><button onclick="addGasto()" class="w-full bg-rose-600 py-4 rounded-xl font-bold uppercase">Guardar</button></div>
             <div id="l-gastos" class="space-y-1 max-h-48 overflow-y-auto"></div>
-            <button onclick="cerrar()" class="w-full mt-4 text-slate-500 text-[10px] font-bold uppercase">Cerrar</button>
+            <button onclick="cerrar()" class="w-full mt-4 text-slate-500 text-[10px] font-bold uppercase text-center">Cerrar</button>
         </div>
     </div>
 
     <div id="m-config" class="modal">
         <div class="bg-slate-900 w-full max-w-md p-6 rounded-[2.5rem] mx-auto h-[90vh] overflow-y-auto border border-slate-700">
-            <h2 class="text-yellow-500 font-black text-center mb-6 uppercase">Configuración</h2>
+            <h2 class="text-yellow-500 font-black text-center mb-6 uppercase">Ajustes</h2>
             <div class="space-y-4">
-                <div class="bg-slate-800 p-3 rounded-2xl">
-                    <p class="text-indigo-400 font-black text-[9px] uppercase mb-2">Personal</p>
-                    <input type="hidden" id="e-u-id"><div class="flex gap-1"><input id="u-n" placeholder="Nombre"><button onclick="saveU()" class="bg-indigo-600 px-3 rounded-lg">+</button></div>
-                    <div id="l-u" class="mt-2 space-y-1"></div>
-                </div>
-                <div class="bg-slate-800 p-3 rounded-2xl">
-                    <p class="text-blue-400 font-black text-[9px] uppercase mb-2">Vasos</p>
-                    <input type="hidden" id="e-v-id"><div class="grid grid-cols-2 gap-1 mb-1"><input id="v-n" placeholder="Nombre"><input id="v-p" type="number" placeholder="$"></div><button onclick="saveV()" class="w-full bg-blue-600 py-2 rounded-lg text-[9px] font-black uppercase">Guardar</button><div id="l-v" class="mt-2"></div>
-                </div>
-                <div class="bg-slate-800 p-3 rounded-2xl">
-                    <p class="text-emerald-400 font-black text-[9px] uppercase mb-2">Toppings</p>
-                    <input type="hidden" id="e-t-id"><div class="grid grid-cols-2 gap-1 mb-1"><input id="t-n" placeholder="Nombre"><input id="t-p" type="number" placeholder="$"></div><button onclick="saveT()" class="w-full bg-emerald-600 py-2 rounded-lg text-[9px] font-black uppercase">Guardar</button><div id="l-t" class="mt-2"></div>
-                </div>
-                <div class="bg-slate-800 p-3 rounded-2xl">
-                    <p class="text-yellow-400 font-black text-[9px] uppercase mb-2">Entregas / Pagos</p>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="edEnt('')" class="bg-slate-700 p-2 rounded-lg text-[8px] font-black">+ Entrega</button>
-                        <button onclick="edPag('')" class="bg-slate-700 p-2 rounded-lg text-[8px] font-black">+ Pago</button>
-                    </div>
-                    <div id="l-ent" class="mt-2"></div><div id="l-pag" class="mt-1 border-t border-slate-700 pt-1"></div>
-                </div>
+                <div class="bg-slate-800 p-3 rounded-2xl"><p class="text-indigo-400 font-black text-[9px] uppercase mb-2">Personal</p><div class="flex gap-1"><input id="u-n" class="flex-1" placeholder="Nombre"><button onclick="saveU()" class="bg-indigo-600 px-3 rounded-lg">+</button></div><div id="l-u" class="mt-2 space-y-1"></div></div>
+                <div class="bg-slate-800 p-3 rounded-2xl"><p class="text-blue-400 font-black text-[9px] uppercase mb-2">Vasos</p><input type="hidden" id="e-v-id"><div class="grid grid-cols-2 gap-1 mb-1"><input id="v-n" placeholder="Nombre"><input id="v-p" type="number" placeholder="$"></div><button onclick="saveV()" class="w-full bg-blue-600 py-2 rounded-lg text-[9px] font-black uppercase">Guardar</button><div id="l-v" class="mt-2"></div></div>
+                <div class="bg-slate-800 p-3 rounded-2xl"><p class="text-emerald-400 font-black text-[9px] uppercase mb-2">Toppings</p><input type="hidden" id="e-t-id"><div class="grid grid-cols-2 gap-1 mb-1"><input id="t-n" placeholder="Nombre"><input id="t-p" type="number" placeholder="$"></div><button onclick="saveT()" class="w-full bg-emerald-600 py-2 rounded-lg text-[9px] font-black uppercase">Guardar</button><div id="l-t" class="mt-2"></div></div>
+                <div class="bg-slate-800 p-3 rounded-2xl"><p class="text-rose-400 font-black text-[9px] uppercase mb-2">Clientes</p><div class="flex gap-1"><input id="c-n" class="flex-1" placeholder="Cliente"><button onclick="saveC()" class="bg-rose-600 px-3 rounded-lg">+</button></div><div id="l-c" class="mt-2"></div></div>
+                <div class="bg-slate-800 p-3 rounded-2xl"><p class="text-yellow-400 font-black text-[9px] uppercase mb-2">Otros</p><div class="flex gap-1 mb-1"><input id="ent-n" class="flex-1" placeholder="Entrega"><button onclick="saveEnt()" class="bg-slate-600 px-3 rounded-lg">+</button></div><div id="l-ent" class="mb-2"></div><div class="flex gap-1"><input id="pag-n" class="flex-1" placeholder="Pago"><button onclick="savePag()" class="bg-slate-600 px-3 rounded-lg">+</button></div><div id="l-pag"></div></div>
             </div>
             <button onclick="cerrar()" class="w-full mt-6 text-slate-500 font-bold uppercase text-[10px]">Cerrar</button>
         </div>
@@ -116,54 +82,25 @@
         <div class="bg-slate-900 w-full max-w-lg p-6 rounded-[2.5rem] mx-auto border border-rose-500/20 shadow-2xl">
             <h2 class="text-rose-500 font-black text-center mb-4 uppercase">Nuevo Pedido</h2>
             <div class="space-y-3">
-                <div class="grid grid-cols-2 gap-2">
-                    <select id="v-cli" class="text-[10px]"></select>
-                    <select id="v-user" class="text-[10px]"></select>
-                </div>
-                <select id="v-entrega" class="w-full text-yellow-400 font-bold text-[11px]"></select>
-                <div class="bg-slate-800 p-3 rounded-2xl">
-                    <select id="v-vaso-sel" class="w-full mb-2 font-black uppercase"></select>
-                    <div id="v-tops-grid" class="grid grid-cols-2 gap-1 mb-3"></div>
-                    <div class="flex gap-2">
-                        <input type="number" id="v-cant" value="1" class="w-16 text-center font-bold">
-                        <button onclick="addVasoCarrito()" class="flex-1 bg-indigo-600 p-2 rounded-xl font-black text-[10px] uppercase">+ Vaso</button>
-                    </div>
-                </div>
+                <div class="grid grid-cols-2 gap-2"><select id="v-cli" class="w-full"></select><select id="v-user" class="w-full"></select></div>
+                <select id="v-entrega" class="w-full text-yellow-400 font-bold"></select>
+                <div class="bg-slate-800 p-3 rounded-2xl"><select id="v-vaso-sel" class="w-full mb-2 font-black"></select><div id="v-tops-grid" class="grid grid-cols-2 gap-1 mb-3"></div><div class="flex gap-2"><input type="number" id="v-cant" value="1" class="w-16 text-center font-bold"><button onclick="addVasoCarrito()" class="flex-1 bg-indigo-600 p-2 rounded-xl font-black text-[10px] uppercase">+ Vaso</button></div></div>
                 <div id="v-carrito" class="space-y-1 max-h-24 overflow-y-auto"></div>
-                <div class="flex justify-between items-center bg-slate-800 p-3 rounded-xl">
-                    <span class="text-[10px] font-black uppercase text-slate-500">Descuento $</span>
-                    <input type="number" id="v-desc" value="0" oninput="calcTotal()" class="w-24 text-right">
-                </div>
-                <div class="bg-slate-950 p-4 rounded-2xl text-center border border-emerald-500/20">
-                    <p id="v-total-txt" class="text-3xl font-black text-emerald-400">$0</p>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="confirmarVenta()" class="flex-1 bg-rose-600 py-4 rounded-xl font-black uppercase">Confirmar</button>
-                    <button onclick="cerrar()" class="bg-slate-700 px-6 rounded-xl font-black uppercase">X</button>
-                </div>
+                <div class="flex justify-between items-center bg-slate-800 p-3 rounded-xl"><span class="text-[10px] font-black uppercase text-slate-500">Descuento $</span><input type="number" id="v-desc" value="0" oninput="calcTotal()" class="w-24 text-right"></div>
+                <div class="bg-slate-950 p-4 rounded-2xl text-center border border-emerald-500/20"><p id="v-total-txt" class="text-3xl font-black text-emerald-400">$0</p></div>
+                <div class="flex gap-2"><button onclick="confirmarVenta()" class="flex-1 bg-rose-600 py-4 rounded-xl font-black uppercase">Confirmar</button><button onclick="cerrar()" class="bg-slate-700 px-6 rounded-xl font-black uppercase">X</button></div>
             </div>
         </div>
     </div>
 
-    <div id="m-pago-final" class="modal">
-        <div class="bg-slate-900 w-full max-w-xs p-8 rounded-[3rem] mx-auto text-center border border-emerald-500/30">
-            <input type="hidden" id="pago-id">
-            <h3 class="text-emerald-400 font-black mb-6 uppercase text-xs">Forma de Pago</h3>
-            <div id="grid-pagos" class="space-y-3"></div>
-            <button onclick="cerrar()" class="mt-6 text-slate-500 text-[10px] uppercase font-black">Cancelar</button>
-        </div>
-    </div>
+    <div id="m-pago-final" class="modal"><div class="bg-slate-900 w-full max-w-xs p-8 rounded-[3rem] mx-auto text-center border border-emerald-500/30"><input type="hidden" id="pago-id"><h3 class="text-emerald-400 font-black mb-6 uppercase text-xs">Forma de Pago</h3><div id="grid-pagos" class="space-y-3"></div><button onclick="cerrar()" class="mt-6 text-slate-500 text-[10px] uppercase font-black">Cancelar</button></div></div>
 
     <script>
-        const config = { apiKey: "AIzaSyBZ93gaPrEkHY5gsNgkBxLEH_GHko_ijFs", authDomain: "delicias--niza.firebaseapp.com", databaseURL: "https://delicias--niza-default-rtdb.firebaseio.com", projectId: "delicias--niza" };
-        firebase.initializeApp(config);
-        const db = firebase.database();
-        
-        let PEDS=[], CLIS=[], USERS=[], VASOS=[], TOPS=[], GASTOS=[], ENTS=[], PAGS=[], BASES={};
-        let carrito = [];
+        const conf = { apiKey: "AIzaSyBZ93gaPrEkHY5gsNgkBxLEH_GHko_ijFs", authDomain: "delicias--niza.firebaseapp.com", databaseURL: "https://delicias--niza-default-rtdb.firebaseio.com", projectId: "delicias--niza" };
+        firebase.initializeApp(conf); const db = firebase.database();
+        let PEDS=[], CLIS=[], USERS=[], VASOS=[], TOPS=[], GASTOS=[], ENTS=[], PAGS=[], BASES={}, carrito=[];
 
         const bind = (path, cb) => db.ref('fresas_niza/'+path).on('value', s => cb(s.val() ? Object.entries(s.val()).map(([id, d]) => ({id, ...d})) : []));
-        
         bind('pedidos', d => { PEDS = d; dibujarTodo(); });
         bind('clientes', d => { CLIS = d; dibUIs(); });
         bind('personal', d => { USERS = d; dibUIs(); });
@@ -179,8 +116,7 @@
         function dibujarTodo() {
             const f = document.getElementById('fecha-app').value;
             const lP = document.getElementById('lista-peds'), lG = document.getElementById('l-gastos'), tR = document.getElementById('tb-reporte');
-            lP.innerHTML = ''; lG.innerHTML = ''; tR.innerHTML = '';
-            
+            lP.innerHTML = lG.innerHTML = tR.innerHTML = '';
             let vT=0, gT=0, totalV=0, entV=0, base = parseInt(BASES[f]) || 0;
             document.getElementById('base-val').value = base;
 
@@ -188,8 +124,62 @@
                 if(p.pagado) vT += parseInt(p.total);
                 totalV += parseInt(p.cant_vasos || 0);
                 if(p.entregado) entV += parseInt(p.cant_vasos || 0);
+                lP.innerHTML += `<div class="card-p" style="border-color:${p.pagado?'#10b981':'#f43f5e'}"><div class="flex justify-between"><div><b class="text-sm uppercase">${p.cliente}</b><br><small class="text-yellow-500 font-bold text-[9px] uppercase">${p.entrega}</small></div><b class="text-emerald-400 text-lg">$${p.total.toLocaleString()}</b></div><div class="text-[9px] text-slate-500 mt-2 italic">${p.resumen_txt}</div><div class="flex gap-2 mt-4"><button onclick="db.ref('fresas_niza/pedidos/${p.id}').update({entregado:!${p.entregado}})" class="flex-1 ${p.entregado?'bg-indigo-900/40 text-indigo-400':'bg-slate-700'} py-2 rounded-xl text-[9px] font-black uppercase">${p.entregado?'ENTREGADO ✅':'ENTREGAR'}</button>${!p.pagado ? `<button onclick="abPago('${p.id}')" class="flex-1 bg-emerald-600 py-2 rounded-xl font-black text-[9px] uppercase">COBRAR</button>` : `<button onclick="confirm('¿Borrar?') && db.ref('fresas_niza/pedidos/${p.id}').remove()" class="bg-slate-800 px-4 rounded-xl text-rose-500 text-[10px]">✕</button>`}</div></div>`;
+                if(p.carrito_json) p.carrito_json.forEach(i => { tR.innerHTML += `<tr><td>${p.cliente}</td><td>${p.atendio}</td><td>${i.nombre}</td><td>$${i.pVaso}</td><td>${i.tops}</td><td>$${i.pTops}</td><td>${i.cant}</td><td>$${p.descuento}</td><td>$${p.total}</td><td>${p.entrega}</td><td>${p.metodo_pago||'--'}</td></tr>`; });
+            });
 
-                lP.innerHTML += `<div class="card-p" style="border-color:${p.pagado?'#10b981':'#f43f5e'}">
-                    <div class="flex justify-between"><div><b class="text-sm uppercase">${p.cliente}</b><br><small class="text-yellow-500 font-bold text-[9px] uppercase">${p.entrega || 'LOCAL'}</small></div><b class="text-emerald-400 text-lg">$${p.total.toLocaleString()}</b></div>
-                    <div class="text-[9px] text-slate-500 mt-2 italic">${p.resumen_txt}</div>
-                    <div class="flex gap
+            GASTOS.filter(g => g.fecha == f).forEach(g => { gT += parseInt(g.val); lG.innerHTML += `<div class="flex justify-between bg-slate-800 p-2 rounded-lg mb-1 text-xs"><span>${g.desc}</span><b class="text-rose-400">-$${g.val}</b><button onclick="db.ref('fresas_niza/gastos/${g.id}').remove()">✕</button></div>`; });
+            document.getElementById('dash-v').innerText = '$' + vT.toLocaleString();
+            document.getElementById('dash-g').innerText = '$' + gT.toLocaleString();
+            document.getElementById('dash-c').innerText = '$' + (base + vT - gT).toLocaleString();
+            document.getElementById('cnt-t').innerText = totalV; document.getElementById('cnt-e').innerText = entV; document.getElementById('cnt-f').innerText = totalV - entV;
+        }
+
+        function abrirVenta() {
+            const sc=document.getElementById('v-cli'), su=document.getElementById('v-user'), se=document.getElementById('v-entrega'), sv=document.getElementById('v-vaso-sel'), gt=document.getElementById('v-tops-grid');
+            sc.innerHTML='<option value="">Cliente...</option>'; CLIS.forEach(c=>sc.innerHTML+=`<option value="${c.nombre}">${c.nombre}</option>`);
+            su.innerHTML='<option value="">Atiende...</option>'; USERS.forEach(u=>su.innerHTML+=`<option value="${u.nombre}">${u.nombre}</option>`);
+            se.innerHTML='<option value="LOCAL">LOCAL</option>'; ENTS.forEach(e=>se.innerHTML+=`<option value="${e.nombre}">${e.nombre}</option>`);
+            sv.innerHTML='<option value="">Vaso...</option>'; VASOS.forEach(v=>sv.innerHTML+=`<option value="${v.id}">${v.nombre} ($${v.precio})</option>`);
+            gt.innerHTML=''; TOPS.forEach(t=>gt.innerHTML+=`<label class="check-item"><input type="checkbox" value="${t.id}">${t.nombre}</label>`);
+            carrito = []; dibujarCarrito(); calcTotal(); abrir('m-venta');
+        }
+
+        function addVasoCarrito() {
+            const vId = document.getElementById('v-vaso-sel').value, v = VASOS.find(x => x.id === vId); if(!v) return;
+            const ch = document.querySelectorAll('#v-tops-grid input:checked'); let tT = [], pT = 0;
+            ch.forEach(c => { let t=TOPS.find(x=>x.id===c.value); tT.push(t.nombre); pT += parseInt(t.precio); });
+            const ca = parseInt(document.getElementById('v-cant').value) || 1;
+            carrito.push({ nombre: v.nombre, pVaso: parseInt(v.precio), tops: tT.join(', ') || 'Natural', pTops: pT, cant: ca, sub: (parseInt(v.precio) + pT) * ca });
+            document.getElementById('v-vaso-sel').value=''; ch.forEach(c=>c.checked=false); dibujarCarrito(); calcTotal();
+        }
+
+        function dibujarCarrito() { const d=document.getElementById('v-carrito'); d.innerHTML=''; carrito.forEach((v,i)=>d.innerHTML+=`<div class="bg-slate-800 p-2 rounded flex justify-between text-[8px]"><span>${v.cant}x ${v.nombre}</span><b>$${v.sub} <button onclick="carrito.splice(${i},1);dibujarCarrito();calcTotal()">✕</button></b></div>`); }
+        function calcTotal() { let t = carrito.reduce((a,b)=>a+b.sub, 0), d = parseInt(document.getElementById('v-desc').value) || 0; document.getElementById('v-total-txt').innerText = '$' + (t-d).toLocaleString(); return (t-d); }
+        function confirmarVenta() { if(carrito.length===0 || !document.getElementById('v-cli').value) return alert("Datos incompletos"); db.ref('fresas_niza/pedidos').push({ cliente: document.getElementById('v-cli').value, atendio: document.getElementById('v-user').value, entrega: document.getElementById('v-entrega').value, resumen_txt: carrito.map(c=>`${c.cant}x ${c.nombre}`).join(' | '), carrito_json: carrito, cant_vasos: carrito.reduce((a,b)=>a+b.cant,0), descuento: document.getElementById('v-desc').value, total: calcTotal(), fecha: document.getElementById('fecha-app').value, pagado: false, entregado: false }).then(()=>cerrar()); }
+
+        function dibUIs() {
+            const l = (id, arr, fn, path) => { const el=document.getElementById(id); el.innerHTML=''; arr.forEach(i=>el.innerHTML+=`<div class="flex justify-between bg-slate-900 p-2 rounded-xl text-[9px] mb-1"><span>${i.nombre}</span><div class="flex gap-2"><button onclick="${fn}('${i.id}')" class="text-blue-400">✎</button><button onclick="db.ref('fresas_niza/${path}/${i.id}').remove()" class="text-rose-500">✕</button></div></div>`); };
+            l('l-u', USERS, 'edU', 'personal'); l('l-v', VASOS, 'edV', 'config/vasos'); l('l-t', TOPS, 'edT', 'config/toppings'); l('l-c', CLIS, 'edC', 'clientes');
+            const lS = (id, arr, path) => { const el=document.getElementById(id); el.innerHTML=''; arr.forEach(i=>el.innerHTML+=`<div class="flex justify-between p-1 text-[8px]"><span>${i.nombre}</span><button onclick="db.ref('fresas_niza/${path}/${i.id}').remove()">✕</button></div>`); };
+            lS('l-ent', ENTS, 'config/entregas'); lS('l-pag', PAGS, 'config/pagos');
+        }
+
+        function saveU() { let n=document.getElementById('u-n').value; if(n) db.ref('fresas_niza/personal').push({nombre:n}); document.getElementById('u-n').value=''; }
+        function saveC() { let n=document.getElementById('c-n').value; if(n) db.ref('fresas_niza/clientes').push({nombre:n}); document.getElementById('c-n').value=''; }
+        function saveEnt() { let n=document.getElementById('ent-n').value; if(n) db.ref('fresas_niza/config/entregas').push({nombre:n}); document.getElementById('ent-n').value=''; }
+        function savePag() { let n=document.getElementById('pag-n').value; if(n) db.ref('fresas_niza/config/pagos').push({nombre:n}); document.getElementById('pag-n').value=''; }
+        function saveV() { let id=document.getElementById('e-v-id').value, n=document.getElementById('v-n').value, p=document.getElementById('v-p').value; if(n){ if(id) db.ref('fresas_niza/config/vasos/'+id).update({nombre:n,precio:p}); else db.ref('fresas_niza/config/vasos').push({nombre:n,precio:p}); document.getElementById('v-n').value=document.getElementById('v-p').value=document.getElementById('e-v-id').value=''; }}
+        function edV(id) { let x=VASOS.find(v=>v.id===id); document.getElementById('v-n').value=x.nombre; document.getElementById('v-p').value=x.precio; document.getElementById('e-v-id').value=id; }
+        function saveT() { let id=document.getElementById('e-t-id').value, n=document.getElementById('t-n').value, p=document.getElementById('t-p').value; if(n){ if(id) db.ref('fresas_niza/config/toppings/'+id).update({nombre:n,precio:p}); else db.ref('fresas_niza/config/toppings').push({nombre:n,precio:p}); document.getElementById('t-n').value=document.getElementById('t-p').value=document.getElementById('e-t-id').value=''; }}
+        function edT(id) { let x=TOPS.find(t=>t.id===id); document.getElementById('t-n').value=x.nombre; document.getElementById('t-p').value=x.precio; document.getElementById('e-t-id').value=id; }
+        function abPago(id) { document.getElementById('pago-id').value=id; const g=document.getElementById('grid-pagos'); g.innerHTML=''; PAGS.forEach(p=>g.innerHTML+=`<button onclick="finalCob('${p.nombre}')" class="w-full bg-slate-800 p-4 rounded-2xl font-black text-xs border border-emerald-500/30 uppercase">${p.nombre}</button>`); abrir('m-pago-final'); }
+        function finalCob(m) { db.ref('fresas_niza/pedidos/'+document.getElementById('pago-id').value).update({pagado:true, metodo_pago:m, entregado:true}).then(()=>cerrar()); }
+        function addGasto() { let d=document.getElementById('g-desc').value, v=parseInt(document.getElementById('g-val').value), f=document.getElementById('fecha-app').value; if(d&&v) db.ref('fresas_niza/gastos').push({desc:d,val:v,fecha:f}).then(()=>{document.getElementById('g-desc').value=document.getElementById('g-val').value='';}); }
+        function saveBase() { db.ref('fresas_niza/bases/' + document.getElementById('fecha-app').value).set(document.getElementById('base-val').value); }
+        function abrir(id) { document.getElementById(id).style.display='block'; }
+        function cerrar() { document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); }
+        function exportarExcel(){ const table=document.getElementById("tabla-reporte"), ws=XLSX.utils.table_to_sheet(table), wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Reporte"); XLSX.writeFile(wb, `Niza_${document.getElementById('fecha-app').value}.xlsx`); }
+    </script>
+</body>
+</html>
